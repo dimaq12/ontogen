@@ -185,6 +185,15 @@ def main(argv: list[str] | None = None) -> int:
               f"{rd / (ns.skill + '.jsonl')} (bodies that fail the corpus "
               f"lose their certificate)")
         return 0
+    if cmd == "certify":
+        import argparse
+        ap = argparse.ArgumentParser(prog="onto certify")
+        ap.add_argument("genome"); ap.add_argument("--skills-cache", default="")
+        ns = ap.parse_args(args[1:])
+        from onto import certify as _ct
+        rows = _ct.coverage(ns.genome, ns.skills_cache or None)
+        print(_ct.render(rows))
+        return 0 if _ct.is_green(rows) else 1
     if cmd == "attest":
         import argparse
         ap = argparse.ArgumentParser(prog="onto attest")
@@ -554,7 +563,7 @@ WantedBy=default.target""")
     print("onto — living ontology compiler.\n"
           "Commands: version | lint | validate | serve | judge | court |\n"
           "  conformance | materialize | explain | fix | warden | unit |\n"
-          "  new | init | models | schema | watch | attest | harden | growisland | replay | mcp\n"
+          "  new | init | models | schema | watch | attest | certify | harden | growisland | replay | mcp\n"
           "Surfaces of a served organism: /event /state /q /list /instances\n"
           "  /admin /ops /skill /ext /health /checkpoint")
     return 0 if cmd == "help" else 2

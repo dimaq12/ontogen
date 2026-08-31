@@ -337,6 +337,20 @@ def _referenced_entities(inv_tree, entity_names: set) -> set:
     return used
 
 
+def _indexes_instances(inv_tree, entity_names: set) -> bool:
+    """True if the invariant references the population NON-symmetrically — i.e.
+    subscripts a specific instance (entity[i]). Such an invariant is NOT
+    permutation-invariant, so the single-representative proof would be UNSOUND;
+    the caller must route it to 'monitored' instead of a false 'proved'. A
+    symmetric invariant touches the entity ONLY as an aggregate iterable."""
+    import ast as _ast
+    for n in _ast.walk(inv_tree):
+        if isinstance(n, _ast.Subscript) and isinstance(n.value, _ast.Name):
+            if n.value.id in entity_names:
+                return True
+    return False
+
+
 def prove_invariants(g) -> dict:
     """#5 (D83): inductively PROVE cross-nothing invariants instead of only
     monitoring them. Decidable class: an invariant referencing exactly ONE
@@ -360,6 +374,14 @@ def prove_invariants(g) -> dict:
         if ent.instances == "dynamic":
             out[name] = Verdict("unsupported",
                                 note="dynamic population (unbounded N) -> monitored")
+            continue
+        if _indexes_instances(tree, ent_names):
+            # non-symmetric (indexes a specific instance) -> the single-
+            # representative proof would be unsound; monitor instead of a
+            # false 'proved' (D95: symmetry is now CHECKED, not assumed).
+            out[name] = Verdict("unsupported",
+                                note="indexes a specific instance (non-symmetric)"
+                                     " -> monitored, not proved by representative")
             continue
         N = max(1, len(ent.instances))
         st = dict(ent.state)
@@ -386,7 +408,10 @@ def prove_invariants(g) -> dict:
                                 note="init violates the invariant")
             continue
         # every rule of en preserves I (representative = instance 0)
-        verdict = Verdict("proved", note=f"inductive over {N} fixed instances")
+        verdict = Verdict("proved", note=f"inductive over {N} fixed instances "
+                          f"(symmetric by construction: the invariant touches the "
+                          f"population only via aggregates — CHECKED, not assumed; "
+                          f"a specific-instance reference is routed to monitored)")
         for rn, r in ent.rules.items():
             if r.when not in g.events:
                 continue

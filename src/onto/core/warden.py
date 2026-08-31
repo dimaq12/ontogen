@@ -120,6 +120,22 @@ class Warden:
         breaking = migrate.diff_genomes(self.genome, new_g)
         fx = migrate.Migrations.model_validate(raw_root.get("migrations", {}))
 
+        # D93: FOLD-PARITY CERTIFICATE — a migration is a functor that must
+        # preserve the fold. Prove it on the ACTUAL stored history BEFORE
+        # committing the rewrite; an undeclared divergence -> reject, the
+        # organism keeps its old genome (no data touched).
+        if breaking:
+            from onto.core.store import open_store
+            old_events = [e for e in open_store(self.data).read_from(0)
+                          if e is not None]
+            cx = migrate.certify_migration_fold(self.genome, new_g,
+                                                old_events, fx)
+            if cx:
+                self.ledger.record("reject_mutation",
+                                   {"reasons": [f"fold-parity: {cx}"]})
+                self._hash = h
+                return {"status": "rejected", "reasons": [f"fold-parity: {cx}"]}
+
         t0 = time.time()
         self.stop()
         stats = {}
@@ -294,14 +310,19 @@ class Warden:
     def tick_assumptions(self) -> dict:
         """U12 (D74): declared holes of ignorance (assumptions.yaml next to the
         genome) — watch-Expr over live populations; a hit in the
-        underdetermination region = a ledger record (visible, measurable,
-        revocable)."""
+        underdetermination region = a ledger record AND, past a quota, a real
+        consequence: rights are demoted to observational (D93). The doctrine
+        promised 'monitor + quota' — sustained time in a region we admitted we
+        do not understand must stop confident intervention, not just log."""
         import yaml
         from onto.core import expr as E
         ap = pathlib.Path(self.root_path).parent / "assumptions.yaml"
-        out = {"checked": 0, "hits": []}
+        out = {"checked": 0, "hits": [], "revoked": False}
         if not ap.exists():
             return out
+        hits_seen = getattr(self, "_assumption_hits", None)
+        if hits_seen is None:
+            hits_seen = self._assumption_hits = {}
         doc = yaml.safe_load(ap.read_text()) or {}
         for name, a in (doc.get("assumptions") or {}).items():
             if a.get("status") != "declared":
@@ -317,10 +338,20 @@ class Warden:
                 continue
             if hit:
                 out["hits"].append(name)
+                hits_seen[name] = hits_seen.get(name, 0) + 1
                 self.ledger.record("assumption_hit", {
                     "assumption": name, "rule": f"{a['entity']}.{a['rule']}",
-                    "watch": a["watch"],
+                    "watch": a["watch"], "count": hits_seen[name],
                     "question": a.get("question", "")[:200]})
+                if hits_seen[name] > self.quota.value and self.rights != "observational":
+                    old_rights = self.rights
+                    self.rights = "observational"
+                    out["revoked"] = True
+                    self.ledger.record("revoke_assumption", {
+                        "assumption": name,
+                        "why": f"{hits_seen[name]} hits in the ignorance region "
+                               f"> quota {self.quota.value:g} [{self.quota.cls}]",
+                        "rights": f"{old_rights} -> {self.rights}"})
         return out
 
     def _entities(self):

@@ -73,6 +73,9 @@ class QueuePort(Port):
 
     def _deliver_out(self, msg: dict) -> None:
         """SEND with retries; delivery is a membrane (drift -> REVOKE)."""
+        if not self.cert_valid:              # D95: REVOKE actually gates delivery
+            self.stats["dropped_revoked"] = self.stats.get("dropped_revoked", 0) + 1
+            return                           # stop hammering a sink we no longer trust
         for attempt in range(self.retries + 1):
             try:
                 self._send(msg)

@@ -1,5 +1,11 @@
 # -*- coding: utf-8 -*-
-"""Growing a PORT codec with a model (D89): the transport tissue joins the
+"""HONESTY (D89): a grown codec has SKILL-LEVEL assurance — it passes the
+round-trip + fold-parity GATE on the given cases and flows (fuzz-thin), it is
+NOT proven for every wire input. A dialect earns fold-parity on a FIXED flow set
+against a live process (kill-9/replay); a codec does not. Treat a grown codec
+as tissue to be hardened, not as a proof.
+
+Growing a PORT codec with a model (D89): the transport tissue joins the
 same doctrine as dialects (growdialect), islands (growisland) and the dialect
 generator (growgen) — you DECLARE the beast (intent + cases), the model writes
 the wire codec, and the GATE certifies it. No tissue is hand-written.
@@ -14,7 +20,8 @@ Gates (CEGIS; counterexamples into the prompt; cache keyed by the spec hash):
      encode(event) ⊇ wire — the codec is faithful in both directions;
   3) FOLD-PARITY (the port law, base.fold_parity): drive the genome's flows as
      WIRE (encode canonical -> wire, decode with the grown codec -> handle) and
-     require the fold to be BYTE-IDENTICAL to driving the canonical events.
+     require the fold (state snapshot after decode) to be STRUCTURALLY EQUAL
+     to driving the canonical events — parsed-object equality, not raw bytes.
      This is the same certificate that governs dialects (D48/growdialect).
 Offline: the whole loop runs on the in-process Bus, zero external deps — the
 grown codec is proven without the real beast; a real broker is the same codec

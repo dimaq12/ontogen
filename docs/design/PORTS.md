@@ -62,7 +62,7 @@ ports:
 Built (D88, exam `fports`): the Port axis, the `http` reference port (sync/pull
 + web-out with retries), the `queue` async port (in/out with retries + membrane
 REVOKE), the in-process `Bus` (a dependency-free stand-in for a real broker),
-and the fold-parity law-gate. `fports` proves: byte-identical fold across
+and the fold-parity law-gate. `fports` proves: STRUCTURALLY-EQUAL fold (parsed snapshot equality after decode, not raw bytes) across
 HTTP-in and async queue-in; native async out; many ports over one fold;
 retries; REVOKE. GROWN codecs (D89, exam `fgrowport`): `growport` grows a port's wire codec
 (decode/encode) from an intent+cases spec, certified by round-trip +

@@ -19,15 +19,28 @@ HUB_VERSION = 1
 # on ANY change to the format; the legal path for a change: bump HUB_VERSION +
 # a vN->vN+1 converter + rewriting the fingerprint IN A SINGLE COMMIT. Silent
 # evolution of the format no longer exists.
-FROZEN_V1_FINGERPRINT = "775e37e9c3f912d52088a1a342a8460e83b4590c3af10b8d1bbfc748844ea91c"
+FROZEN_V1_FINGERPRINT = "e831b15e14ad6e828aa6d56c6898c59bf76403797c696f2a3405a3b409dff98b"
+
+
+def _strip_prose(node):
+    """Recursively drop 'description'/'title' so the freeze guards STRUCTURE,
+    not prose (D81). Editing or translating a docstring must NOT trip the freeze."""
+    if isinstance(node, dict):
+        return {k: _strip_prose(v) for k, v in node.items()
+                if k not in ("description", "title")}
+    if isinstance(node, list):
+        return [_strip_prose(v) for v in node]
+    return node
 
 
 def schema_fingerprint() -> str:
-    """Canonical fingerprint of the genome format (pydantic models -> json schema)."""
+    """Canonical fingerprint of the genome format (pydantic models -> json schema),
+    STRUCTURE ONLY — description/title are stripped (D81), so the freeze reacts to
+    a real format change (a field, a type, a constraint), never to prose edits."""
     import hashlib
     import json as _json
     from onto.core.genome import Genome
-    schema = Genome.model_json_schema()
+    schema = _strip_prose(Genome.model_json_schema())
     return hashlib.sha256(
         _json.dumps(schema, sort_keys=True, ensure_ascii=False).encode()
     ).hexdigest()

@@ -102,6 +102,27 @@ def make_server(org: Organism, host: str = "127.0.0.1", port: int = 8090,
                          "principal": principal}
         return None
 
+    def authn(handler, surface: str) -> tuple[int, dict] | None:
+        """AUTHENTICATION gate for the data / ops / compute surfaces (D93):
+        when auth is configured these routes require a VALID IdP token (no
+        per-event role — that is authorize()'s job for /event). It closes the
+        holes where /ops/ledger leaked the whole journal and /state, /ext,
+        /skill, /checkpoint answered unauthenticated. Without an auth block the
+        plane is open (opt-in) — stated honestly, not hidden behind a banner.
+        Fails CLOSED on missing/rejected/errored/REVOKED idp (mirrors /event)."""
+        if not org.g.auth:
+            return None
+        tok = handler.headers.get("Authorization", "")
+        tok = tok[7:] if tok.startswith("Bearer ") else ""
+        if not tok:
+            return 401, {"error": "auth required: Authorization: Bearer <token>"}
+        code, who = externals[org.g.auth["idp"]].call({"token": tok})
+        if code != 200 or "error" in who:
+            org.ledger.record("auth_denied", {"why": f"idp rejected token "
+                                              f"({surface})"})
+            return 401, {"error": "token rejected by idp"}
+        return None
+
     class Handler(BaseHTTPRequestHandler):
         def log_message(self, *a):     # silence on stdout (logging is the ledger's job)
             pass
@@ -124,9 +145,13 @@ def make_server(org: Organism, host: str = "127.0.0.1", port: int = 8090,
 
         def do_POST(self):
             if self.path == "/checkpoint":
+                if (d := authn(self, "/checkpoint")):
+                    return self._send(*d)
                 with lock:
                     return self._send(200, org.checkpoint())
             if self.path.startswith("/ext/"):
+                if (d := authn(self, "/ext")):
+                    return self._send(*d)
                 name = self.path.split("/", 2)[2]
                 if name not in externals:
                     return self._send(404, {"error": f"no external '{name}'"})
@@ -138,6 +163,8 @@ def make_server(org: Organism, host: str = "127.0.0.1", port: int = 8090,
                 code, out = externals[name].call(payload)   # no lock: the island is slow
                 return self._send(code, out)
             if self.path.startswith("/skill/"):
+                if (d := authn(self, "/skill")):
+                    return self._send(*d)
                 name = self.path.split("/", 2)[2]
                 if name not in skills:
                     return self._send(404, {"error": f"skill '{name}' not "
@@ -187,6 +214,8 @@ def make_server(org: Organism, host: str = "127.0.0.1", port: int = 8090,
             if path == "/ops":
                 return self._send_html(_ops_html(org))
             if path == "/ops/ledger":                  # U8/D69: tail of the journal
+                if (d := authn(self, "/ops/ledger")):  # D93: the journal is not public
+                    return self._send(*d)
                 kind = qd.get("kind", "")
                 limit = int(qd.get("_limit", 100))
                 rows = []
@@ -203,6 +232,12 @@ def make_server(org: Organism, host: str = "127.0.0.1", port: int = 8090,
                                         "total": len(rows),
                                         "chain": org.ledger.verify()})
             parts = [urllib.parse.unquote(p) for p in path.split("/") if p]
+            # D93: the read plane (state/queries/instances/list) requires
+            # authentication when auth is configured; /health stays open
+            # (liveness). Without an auth block the plane is open (opt-in).
+            if parts[:1] and parts[0] in ("state", "instances", "q", "list"):
+                if (d := authn(self, f"/{parts[0]}")):
+                    return self._send(*d)
             with lock:
                 if parts == ["health"]:
                     return self._send(200, {"ok": True, "counters": org.counters,

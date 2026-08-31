@@ -19,6 +19,21 @@ from onto import __version__
 from onto.core import court, genome as G, ir, membrane as MB
 
 
+def _skill_guarantee(info: dict) -> str:
+    """HONEST per-skill guarantee (D93 self-audit): a skill is NOT 'proven'. A
+    certified body is fuzz-thin — grow-gated by property-fuzz + equivalence to an
+    UNPROVEN same-model oracle over a SMALL domain, DKW-measured here; mutants
+    never touch skill bodies (only rules), and this attest path does not run the
+    teeth gate. Say exactly that, and flag an uncertified skill instead of
+    printing a blanket 'proven-functional'."""
+    if info.get("phase") in (None, "NOT CERTIFIED"):
+        return "UNCERTIFIED — no certified body in cache (NOT a guarantee)"
+    q = info.get("quantile_cert", {}).get("q")
+    return (f"fuzz-certified (DKW q={q}, 200 property samples) — grow-gated by "
+            f"property-fuzz + equivalence to an UNPROVEN oracle on a small domain "
+            f"(ints 0..10^12, |list|<=24); NOT proven, no mutants on skill bodies")
+
+
 def build_attest(genome_path, skills_cache=None) -> dict:
     genome_path = pathlib.Path(genome_path)
     g = G.load(genome_path)
@@ -48,8 +63,15 @@ def build_attest(genome_path, skills_cache=None) -> dict:
     seams = {}
     for name, raw_ext in g.externals.items():
         ext = MB.External.model_validate(raw_ext)
+        if ext.guarantee is not None:
+            guar = f"DELEGATED to {ext.guarantee.by} ({ext.guarantee.ref})"
+        elif ext.cases:
+            guar = f"functional ({len(ext.cases)} acceptance cases/vectors)"
+        else:
+            guar = "CONTAINED ONLY — not proven, not delegated (add cases or a guarantee)"
         seams[name] = {"assumptions": len(ext.assumptions), "quota": ext.quota,
-                       "growable": bool(ext.intent and ext.cases)}
+                       "growable": bool(ext.intent and ext.cases),
+                       "guarantee": guar}
     weakest = (min(seams, key=lambda n: (seams[n]["assumptions"],
                                          -seams[n]["quota"]))
                if seams else None)
@@ -98,8 +120,12 @@ def build_attest(genome_path, skills_cache=None) -> dict:
                            "itself); the strong guarantee is entity_induction"},
         "assumed": {
             "seams": seams, "weakest_seam": weakest,
-            "auth": ("deny-by-default" if g.auth else
-                     "NONE — every event is open"),
+            "auth": ("deny-by-default on /event (per-event role rules) + "
+                     "authentication required on the data/ops/compute plane "
+                     "(/state,/q,/list,/instances,/ext,/skill,/checkpoint,"
+                     "/ops/ledger); /health,/admin,/ops shells stay open — "
+                     "put those behind a gateway" if g.auth else
+                     "NONE — every route is open (no auth block declared)"),
             "skills": skills},
         "invariants": invariants,
         "monitored": {"drift_monitors": sum(s["assumptions"]
@@ -108,6 +134,14 @@ def build_attest(genome_path, skills_cache=None) -> dict:
                       "invariants_monitored": sum(1 for v in invariants.values()
                                                   if v.startswith("monitored"))},
         "chains": _chains(g, proofs),
+        "guarantee_chain": {
+            **{f"island:{n}": s["guarantee"] for n, s in seams.items()},
+            **{f"skill:{n}": _skill_guarantee(skills.get(n, {}))
+               for n in g.skills}},
+        "uncovered": [f"island:{n}" for n, s in seams.items()
+                      if s["guarantee"].startswith("CONTAINED ONLY")]
+                     + [f"skill:{n}" for n in g.skills
+                        if skills.get(n, {}).get("phase") in (None, "NOT CERTIFIED")],
         "survival": _hazard_moves(g),
         "honest": {
             "island_content": "NOT PROVED — only contained "
@@ -214,6 +248,14 @@ def render_md(a: dict) -> str:
         wh = f" · webhook: {ch['webhook']}" if ch["webhook"] else ""
         L.append(f"- {ev} -> {' -> '.join(st['rule'] for st in ch['steps'])}"
                  f" · {mark}{wh}")
+    L += [          "", "## GUARANTEE CHAIN (D90: every part proven OR delegated)"]
+    for part, guar in a.get("guarantee_chain", {}).items():
+        L.append(f"- {part}: {guar}")
+    if a.get("uncovered"):
+        L.append(f"- WARN UNCOVERED PARTS (neither proven nor delegated): "
+                 f"{a['uncovered']}")
+    else:
+        L.append("- OK no uncovered parts: every tissue is proven or delegated")
     L += ["", "## SURVIVAL (hazard moves, Part VI slide 6'.2)"]
     for sname, m in a["survival"].items():
         hh = "h=1 (deterministic)" if m["h"] == 1.0 else "h NOT MEASURED"

@@ -48,7 +48,9 @@ The GENOME (source of truth for semantics):
 ```
 
 The REFERENCE implementation (Python; your Node.js server must behave
-byte-for-byte identically at the HTTP level and produce the same states):
+equivalently at the HTTP level (parsed-response equality, not raw bytes) and
+produce the same states — checked over the judge's fixed flow set, then a real
+kill-9 + cold replay of the ledger):
 ```python
 {ref_py}
 ```

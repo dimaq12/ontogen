@@ -585,3 +585,22 @@
   + one embedded in each dialect's runtime), the Expr conformance suite mandatory from
   F1.
 - Open remain D11 (the genome format), D12 (the second dialect) — spike F0.
+
+## [09-01] D93 adversarial self-audit #2 — parking
+- Out-port replay-suppression: `_replaying` guard + hook-nulling exist in
+  organism.py, but no exam installs an emit-hook then triggers replay to prove
+  no double external side-effect. NAMED, not yet tested (NOT §26: don't build
+  outside the wave). Follow-up: an offline exam that drives replay with a live
+  out-port hook and asserts zero re-delivery.
+- Out-port (http/queue) REVOKE is flag-only (no call-gate). Outbound, so no
+  containment breach; left as-is. If it ever gates delivery, mirror the
+  membrane fail-fast.
+
+## [09-01] D96 — rust + kotlin dialects, release 1.4.0
+Added rust-stdlib (conformance 240/240 via real rustc; byte-identical fold on
+wallet/booking/saga incl. emit-cascade — exam frust). Finished the parallel
+kotlin-stdlib WIP (printer was 108/240 short + wrong on floor-div; now 240/240
+emitted, certificate honestly 'skipped' with no kotlinc). f3 toolchain-tolerant
+(green|skipped pass, red fails). Version bumped to 1.4.0. Ships with the whole
+honesty arc D91-D95 (certify matrix, membrane REVOKE, migration fold-parity,
+freeze prose, harden, auth data-plane, knowledge quota, park-closing).

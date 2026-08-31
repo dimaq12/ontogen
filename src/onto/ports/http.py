@@ -4,7 +4,8 @@
 
 - direction 'in': reuses the reference HTTP runtime (serve.make_server) —
   POST /event, GET /state,/q (pull observation). This IS the canonical port;
-  every other beast is certified byte-identical to its fold.
+  every other beast is certified fold-equal (structural snapshot equality
+  after decode, not raw bytes) to its fold.
 - direction 'out': on an emitted event -> POST to a URL with retries+backoff
   (generalises U6 webhooks into a first-class, membrane-monitored out-port).
 """
@@ -59,6 +60,9 @@ class HttpPort(Port):
         self.org._emit_hook = hook
 
     def _deliver_out(self, msg: dict) -> None:
+        if not self.cert_valid:              # D95: REVOKE actually gates delivery
+            self.stats["dropped_revoked"] = self.stats.get("dropped_revoked", 0) + 1
+            return                           # stop hammering a sink we no longer trust
         for attempt in range(self.retries + 1):
             try:
                 req = urllib.request.Request(

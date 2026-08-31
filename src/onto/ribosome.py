@@ -45,7 +45,7 @@ PROVIDER_PRESETS = {
 }
 DEFAULT_LADDERS = {
     "skills": ["qwen/qwen3-coder", "qwen/qwen3-coder-plus"],
-    "nl": ["anthropic/claude-sonnet-4.5", "anthropic/claude-opus-4.6"],
+    "nl": ["anthropic/claude-sonnet-4.5", "anthropic/claude-opus-4.1"],
     "dialect": ["qwen/qwen3-coder", "qwen/qwen3-coder-plus"],
     "island": ["qwen/qwen3-coder", "qwen/qwen3-coder-plus"],
 }
@@ -56,14 +56,25 @@ def _resolve_secret(v: str) -> str:
     file contents; anything else -> literal. Never hardcode a key in config."""
     import os
     v = (v or "").strip()
+    # An EXPLICIT reference that fails to resolve is a config error, not a
+    # blank key: raise so the misconfig is loud, never silently unauthenticated.
     if v.startswith("${") and v.endswith("}"):
-        return os.environ.get(v[2:-1], "")
+        name = v[2:-1]
+        if name not in os.environ:
+            raise RuntimeError(f"key references ${{{name}}} but that env var is "
+                               f"not set (fix the env or the config)")
+        return os.environ[name]
     if v.startswith("$"):
-        return os.environ.get(v[1:], "")
+        name = v[1:]
+        if name not in os.environ:
+            raise RuntimeError(f"key references ${name} but that env var is not set")
+        return os.environ[name]
     if v.startswith("@"):
         pth = pathlib.Path(v[1:]).expanduser()
-        return pth.read_text(encoding="utf-8").strip() if pth.exists() else ""
-    return v
+        if not pth.exists():
+            raise RuntimeError(f"key references @{v[1:]} but that file does not exist")
+        return pth.read_text(encoding="utf-8").strip()
+    return v  # literal (incl. "" = deliberately no key, e.g. ollama/local)
 
 
 class Provider:

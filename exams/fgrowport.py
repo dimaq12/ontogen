@@ -71,7 +71,7 @@ def main():
     # the grown codec is CERTIFIED: round-trip + fold-parity (re-check)
     codec_path = d / "envelope.py"
     v = growport.gates(codec_path.read_text(), SPEC, gp, fp, ROOT)
-    R.append(("grown codec certified: round-trip + FOLD-PARITY green", v is None))
+    R.append(("grown codec GATE-PASSED (round-trip + fold-parity on the given cases+flows; fuzz-thin, skill-level assurance, NOT a proof for all wire inputs)", v is None))
 
     # and it PLUGS IN as a real port: wire envelopes drive the organism
     from onto.core import genome as G

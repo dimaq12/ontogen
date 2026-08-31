@@ -4,13 +4,19 @@
 An island = the single spot in the network, behind a membrane of assumptions —
 which means an SLM can write it: the intelligence lives in the gate, not in the
 executor.
-Gates (CEGIS, counterexamples into the prompt; cache keyed by the spec hash — a
-certified artifact, like a skill/dialect):
+Gates (CEGIS, counterexamples into the prompt; cache keyed by the spec hash).
+HONESTY (D93): "GREEN" means the grown code MATCHES external.cases (a fixed
+handful of examples, subset-checked) — it is case-gated, NOT proven correct for
+inputs outside those cases (fuzz-thin, like a skill). The import check is a
+REGEX MEMBRANE over the source, NOT a sandbox: the grown code is exec'd with
+full builtins (os.system, __import__, eval, open all reachable) — containment
+rests on the runtime membrane (REVOKE) + a HUMAN accepting the code before it
+is committed, not on the sanitizer. Gates:
   1) compile + def <provides>(payload) + a WHITELIST of imports
-     (a sanitary membrane; the final accept of the grown code is a human);
+     (a source-regex membrane, NOT a sandbox; a human gives the final accept);
   2) ACCEPTANCE THROUGH FLAKE: external.cases are run through MonitoredAdapter
      against a LIVE (in the exam, flaky) upstream: without retries the cases go
-     red — robustness is forced by the gate, not by trust;
+     red — robustness is forced by the gate on those cases, not by trust;
   3) attestation after the run: cert_valid=True (the assumption-Exprs hold).
 """
 from __future__ import annotations
@@ -29,7 +35,11 @@ _IMPORT_RE = re.compile(r"^\s*(?:import\s+([\w.]+)|from\s+([\w.]+)\s+import)",
 
 
 def sanitize(code: str, provides: str) -> str | None:
-    """None = green, otherwise a verdict. Compilation + provides + the import membrane."""
+    """None = green, otherwise a verdict. Compile + provides + a source-regex
+    import membrane. NOT a sandbox: this scans import/from lines only; it does
+    NOT stop __import__, os.system (os is whitelisted), eval, exec or open, and
+    the code later runs with full builtins. Real controls: runtime membrane
+    (REVOKE) + human accept (see module docstring)."""
     try:
         compile(code, "<island>", "exec")
     except SyntaxError as e:

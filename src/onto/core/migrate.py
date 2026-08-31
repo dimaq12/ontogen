@@ -83,17 +83,12 @@ def coverage(breaking: list[str], fx: Migrations) -> list[str]:
     return uncovered
 
 
-def migrate_log(fx: Migrations, data_dir: str | pathlib.Path,
-                version_tag: str) -> dict:
-    """Rewrite the log with the functor via EventStore (jsonl OR sqlite —
-    auto-detected; idempotent). The old log -> a backup is mandatory."""
-    from onto.core.store import open_store
-    store = open_store(data_dir)
-    lines = [ev for ev in store.read_from(0) if ev is not None]
-    if not lines:
-        return {"events_in": 0, "events_out": 0, "backup": None}
+def apply_functor(fx: "Migrations", events: list[dict]) -> tuple[list[dict], int]:
+    """The functor as a pure transform on an event list: rename events/fields,
+    drop declared-lost events. Shared by migrate_log (rewrite) and the
+    fold-parity certificate (dry run) so the two can never diverge."""
     out, dropped = [], 0
-    for ev in lines:
+    for ev in events:
         typ = ev.get("type")
         if typ in fx.drop_events:
             dropped += 1
@@ -108,6 +103,68 @@ def migrate_log(fx: Migrations, data_dir: str | pathlib.Path,
             else:
                 ev2[renames.get(k, k)] = v
         out.append(ev2)
+    return out, dropped
+
+
+def _fold_of(genome, events: list[dict]) -> dict:
+    """The fold (entity-state snapshot) of a genome over an explicit event list,
+    computed in an isolated temp dir by real replay (no side effects: replay
+    suppresses emissions)."""
+    import tempfile
+    from onto.core.organism import Organism
+    tmp = pathlib.Path(tempfile.mkdtemp())
+    (tmp / "events.jsonl").write_text(
+        "".join(json.dumps(e, ensure_ascii=False) + "\n" for e in events),
+        encoding="utf-8")
+    return Organism(genome, tmp, store="jsonl").snapshot()
+
+
+def certify_migration_fold(old_genome, new_genome, old_events: list[dict],
+                           fx: "Migrations") -> str | None:
+    """FOLD-PARITY CERTIFICATE for a migration (D93): the migration is a functor
+    that must PRESERVE the fold. Compute old_fold (old genome over the old log)
+    and new_fold (new genome over the functored log); every entity/instance/
+    field that DIVERGES must be attributable to a declared loss (drop_events +
+    declared_loss, D74). An undeclared divergence = a functor that corrupts data
+    -> reject. A pure rename with any divergence is always a reject. None =
+    certified; else a counterexample string. This is REAL parity over the actual
+    stored history, not a trusted transform."""
+    new_events, _ = apply_functor(fx, old_events)
+    old_fold = _fold_of(old_genome, old_events)
+    try:
+        new_fold = _fold_of(new_genome, new_events)
+    except Exception as ex:  # noqa: BLE001 — a log the new genome can't replay
+        return (f"migration BROKE fold-parity: the functored log is "
+                f"unprocessable by the new genome ({type(ex).__name__}: "
+                f"{str(ex)[:120]})")
+    diffs = []
+    for en in sorted(set(old_fold) | set(new_fold)):
+        oi, ni = old_fold.get(en, {}), new_fold.get(en, {})
+        for inst in sorted(set(oi) | set(ni), key=str):
+            os_, ns_ = oi.get(inst, {}), ni.get(inst, {})
+            for f in sorted(set(os_) | set(ns_)):
+                if os_.get(f) != ns_.get(f):
+                    diffs.append(f"{en}/{inst}.{f}: {os_.get(f)!r} -> "
+                                 f"{ns_.get(f)!r}")
+    if not diffs:
+        return None
+    # divergence exists: permitted ONLY if the operator declared a loss (D74).
+    if fx.drop_events and fx.declared_loss:
+        return None
+    return ("migration BROKE fold-parity (undeclared divergence — the functor "
+            "does not preserve the fold): " + "; ".join(diffs[:6]))
+
+
+def migrate_log(fx: Migrations, data_dir: str | pathlib.Path,
+                version_tag: str) -> dict:
+    """Rewrite the log with the functor via EventStore (jsonl OR sqlite —
+    auto-detected; idempotent). The old log -> a backup is mandatory."""
+    from onto.core.store import open_store
+    store = open_store(data_dir)
+    lines = [ev for ev in store.read_from(0) if ev is not None]
+    if not lines:
+        return {"events_in": 0, "events_out": 0, "backup": None}
+    out, dropped = apply_functor(fx, lines)
     backup = store.rewrite(out, version_tag)
     return {"events_in": len(lines), "events_out": len(out),
             "dropped": dropped, "backup": backup}

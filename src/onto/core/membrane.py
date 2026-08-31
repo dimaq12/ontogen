@@ -25,6 +25,22 @@ _STATS_TYPES = {"latency_ms": "int", "error_rate_pct": "int", "calls": "int"}
 WINDOW = 50
 
 
+class Guarantee(BaseModel):
+    """D90: an island that CANNOT be proven here must lean on a NAMED external
+    guarantor — a vetted library/standard whose OWN audit is the guarantee.
+    We do not verify the guarantor's source; we verify (provenance) that it is
+    really the pinned one, and the passport CHAINS to its audit reference.
+    Every part of the code is thus either PROVEN here or DELEGATED to a named
+    guarantor — nothing is left uncertified."""
+    model_config = ConfigDict(extra="forbid")
+    by: str                           # guarantor name, e.g. "openssl", "libsodium"
+    ref: str                          # its guarantee, e.g. "FIPS 140-3 cert #4282", "RFC 6234"
+    module: str = ""                  # importable module the island delegates to
+    attr: str = ""                    # optional attr to read (e.g. "OPENSSL_VERSION")
+    expect: str = ""                  # optional: attr value must CONTAIN this
+    sha256: str = ""                  # optional: the module file's sha256 (integrity)
+
+
 class External(BaseModel):
     model_config = ConfigDict(extra="forbid")
     island: str                       # path to the python file (rel. to the genome root)
@@ -39,6 +55,7 @@ class External(BaseModel):
     # an honest refusal).
     intent: str = ""
     cases: list[dict] = Field(default_factory=list)
+    guarantee: Guarantee | None = None   # D90: delegation to a named guarantor
 
 
 def validate_external(name: str, ext: External, base: pathlib.Path) -> list[str]:
@@ -59,6 +76,46 @@ def validate_external(name: str, ext: External, base: pathlib.Path) -> list[str]
         if not isinstance(c.get("payload"), dict) or not isinstance(c.get("expect"), dict):
             errs.append(f"external {name}.cases[{i}]: need payload{{}} and expect{{}}")
     return errs
+
+
+def verify_guarantee(g: "Guarantee") -> tuple[bool, str]:
+    """Provenance check (D90): the named guarantor is really present and is the
+    pinned one. (ok, detail). Integrity, not a security audit — the passport
+    says so; the guarantor's OWN audit (ref) is the actual guarantee."""
+    import hashlib as _h
+    import importlib
+    detail = f"{g.by} ({g.ref})"
+    if g.module:
+        try:
+            mod = importlib.import_module(g.module)
+        except Exception as e:  # noqa: BLE001
+            return False, f"guarantor module '{g.module}' NOT importable: {e}"
+        if g.attr:
+            val = str(getattr(mod, g.attr, ""))
+            if g.expect and g.expect not in val:
+                return False, (f"guarantor {g.module}.{g.attr}='{val}' does not "
+                               f"contain expected '{g.expect}'")
+            detail += f", {g.module}.{g.attr}={val}"
+        if g.sha256:
+            f = getattr(mod, "__file__", None)
+            if not f:
+                return False, f"guarantor '{g.module}' has no file to checksum"
+            h = _h.sha256(open(f, "rb").read()).hexdigest()
+            if h != g.sha256:
+                return False, (f"guarantor '{g.module}' checksum {h[:16]}… != "
+                               f"pinned {g.sha256[:16]}…")
+            # HONESTY (D90.1): the hash covers exactly ONE file — the module's
+            # own origin. A pure-Python module (.py) that fronts a native
+            # backend (e.g. ssl -> _ssl.so -> libssl) is a WRAPPER: this hash
+            # does NOT cover the native code that does the real work. Say so.
+            origin = getattr(getattr(mod, "__spec__", None), "origin", "") or f
+            if origin.endswith((".so", ".pyd", ".dylib")):
+                detail += ", sha256✓(native binary)"
+            else:
+                detail += (", sha256✓(source file ONLY — a native backend, if "
+                           "any, is NOT covered by this hash; it is delegated "
+                           "to the guarantor's own audit)")
+    return True, detail
 
 
 def case_verdict(expect: dict, got: dict) -> str | None:
@@ -83,6 +140,19 @@ class MonitoredAdapter:
         self._win: deque[tuple[int, bool]] = deque(maxlen=WINDOW)  # (ms, ok)
         self.violations = 0
         self.cert_valid = True
+        self.guarantee_detail = None
+        if ext.guarantee is not None:            # D90: verify the guarantor
+            ok, detail = verify_guarantee(ext.guarantee)
+            self.guarantee_detail = detail
+            if ok:
+                ledger.record("guarantee_verified", {
+                    "external": name, "guarantor": ext.guarantee.by,
+                    "ref": ext.guarantee.ref, "detail": detail})
+            else:
+                self.cert_valid = False
+                ledger.record("guarantee_unmet", {
+                    "external": name, "why": detail})
+                raise ValueError(f"island {name}: guarantee UNMET — {detail}")
         ns: dict = {}
         code = (base / ext.island).read_text(encoding="utf-8")
         exec(compile(code, ext.island, "exec"), ns)   # noqa: S102 — the island is trusted
@@ -99,10 +169,25 @@ class MonitoredAdapter:
                 "calls": calls}
 
     def call(self, payload: dict) -> tuple[int, dict]:
+        # REVOKE is a real circuit-break, not just a flag: once trust is revoked
+        # the membrane fail-fasts WITHOUT invoking the island (containment, not
+        # mere monitoring). It latches — recovery needs re-attestation (grow).
+        if not self.cert_valid:
+            self.ledger.record("call_blocked_revoked",
+                               {"external": self.name})
+            return 503, {"error": f"external '{self.name}' trust REVOKED — "
+                                  f"call blocked by the membrane"}
         t0 = time.perf_counter()
         try:
             out = self._fn(payload)
-            ok = True
+            # A non-dict return is foreign dirt too: contain it as a failure
+            # instead of letting an unvalidated shape into the organism.
+            if not isinstance(out, dict):
+                out = {"error": f"island returned non-dict "
+                                f"{type(out).__name__} (contract is -> dict)"}
+                ok = False
+            else:
+                ok = True
         except Exception as e:  # noqa: BLE001 — foreign dirt does not bring the organism down
             out = {"error": f"{type(e).__name__}: {str(e)[:200]}"}
             ok = False

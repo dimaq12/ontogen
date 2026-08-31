@@ -29,7 +29,7 @@ path is propose (file/MCP) through the same gates.
 | **CORE** | entities, events, rules, contracts, invariants, sagas (emissions) | human/LLM — via the genome | COURT: proven for all inputs; the interview catches underdetermination |
 | **SKILLS** | algorithms (matching, allocation, pricing) | SLM in a CEGIS loop | property-fuzz with teeth + equivalence to the oracle + complexity budget |
 | **ISLANDS** | dirt: foreign APIs, crypto, files, custom UI | human, behind a membrane | assumption-Expr -> drift monitors -> revocation of trust; errors don't drop the organism |
-| **FABRICS** | languages/frameworks/stores (go, python, jsonl, sqlite) | dialect plugins | conformance corpus; the fold is byte-identical across fabrics |
+| **FABRICS** | languages/frameworks/stores (go, python, jsonl, sqlite) | dialect plugins | conformance corpus (240 expression cases) + a fixed flow set; the fold is STRUCTURALLY EQUAL across fabrics (parsed snapshot equality, not raw bytes) |
 | **SURFACES** | API, queries, admin panel, webhooks | printed from the genome | parity: one judge across all substrates |
 
 Meaning lives only in the CORE layer. Everything else is replaceable.

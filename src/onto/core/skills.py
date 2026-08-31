@@ -29,7 +29,7 @@ from onto.core import expr as E
 
 MAX_PROPERTY_NODES = 400          # properties are spec — they may exceed the body
 FUZZ_CASES = 60
-FUZZ_MAX_LEN = 8
+FUZZ_MAX_LEN = 24        # D95: widened from 8 — catch large-N / ordering bugs
 
 
 class Skill(BaseModel):
@@ -95,7 +95,12 @@ def gen_case(sk: Skill, rnd: random.Random, size: int | None = None) -> dict:
             item = {}
             for f, ft in sorted(fields.items()):
                 if ft != "str":
-                    item[f] = rnd.randint(0, 40)
+                    # D95: widened domain — mostly 0..10_000, ~10% a LARGE value
+                    # (up to 10^12) to probe scaling / int overflow. Non-negative:
+                    # the declared commerce fields (price/qty/ts) have no sign,
+                    # and the types carry no bounds to fuzz against.
+                    item[f] = (rnd.randint(10**6, 10**12)
+                               if rnd.random() < 0.1 else rnd.randint(0, 10_000))
                 elif f == "id":
                     item[f] = f"{pname[0]}{pi}_{i}"      # id is unique
                 else:

@@ -51,3 +51,47 @@ def test_all_mutant_classes_distinguished():
             continue
         undistinguished.append(m)
     assert undistinguished == [], f"court blind to: {undistinguished}"
+
+
+def test_invariant_symmetry_is_grammar_guaranteed():
+    """D95 (closes a D93 park): the single-representative invariant proof is
+    sound because invariants are SYMMETRIC by construction — the Expr grammar
+    forbids instance indexing (Subscript), so an invariant can only touch the
+    population via aggregates. Belt-and-braces: _indexes_instances flags any
+    subscript AST, and prove_invariants routes it to monitored, never a false
+    'proved'."""
+    import ast
+    from onto.core import genome as G, court as C
+    import tempfile, pathlib, yaml
+
+    base = {"onto": 1, "name": "inv", "retry_window": 8,
+            "events": {"Book": {"room": "str"}},
+            "entities": {"room": {"key": "room", "instances": ["a", "b"],
+                "state": {"booked": "int"}, "init": {"booked": 0},
+                "rules": {"r": {"when": "Book", "body": "s.booked = s.booked + 1\n",
+                          "contract": {"post": "s.booked >= 0"}}}}},
+            "queries": {}}
+
+    # (1) a symmetric (aggregate) invariant is PROVED inductively
+    sym = {**base, "invariants": {"cap": "sum(r.booked for r in room) >= 0"}}
+    p = pathlib.Path(tempfile.mkdtemp()) / "g.yaml"
+    p.write_text(yaml.safe_dump(sym))
+    verdicts = C.prove_invariants(G.load(p))
+    assert verdicts["cap"].status == "proved"
+    assert "symmetric by construction" in verdicts["cap"].note
+
+    # (2) an instance-indexing invariant cannot even LOAD (grammar rejects it)
+    asym = {**base, "invariants": {"eq": "room[0].booked == room[1].booked"}}
+    p2 = pathlib.Path(tempfile.mkdtemp()) / "g.yaml"
+    p2.write_text(yaml.safe_dump(asym))
+    try:
+        G.load(p2)
+        assert False, "instance-indexing invariant should be rejected at load"
+    except G.GenomeError as e:
+        assert "Subscript" in str(e)
+
+    # (3) belt-and-braces: _indexes_instances flags a subscript AST directly
+    assert C._indexes_instances(ast.parse("room[0].booked > 0", mode="eval").body,
+                                {"room"}) is True
+    assert C._indexes_instances(ast.parse("sum(r.booked for r in room) > 0",
+                                mode="eval").body, {"room"}) is False

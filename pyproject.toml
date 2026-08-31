@@ -1,6 +1,6 @@
 [project]
 name = "ontogen"
-version = "1.3.0"
+version = "1.4.0"
 description = "onto: a living ontology compiler — programs are genomes; code is a proven, printed phenotype"
 readme = "README.md"
 keywords = ["ontology", "compiler", "formal-verification", "smt", "code-generation", "genome"]

@@ -29,4 +29,4 @@ def test_build_and_conformance(tmp_path):
 
 def test_registry_has_both():
     from onto.dialects import registry
-    assert registry.names() == ["go-stdlib", "python-stdlib"]
+    assert registry.names() == ["go-stdlib", "kotlin-stdlib", "python-stdlib", "rust-stdlib"]

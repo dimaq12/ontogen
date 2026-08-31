@@ -126,10 +126,17 @@ def start_ports(org, ports_cfg: list, bus: Bus, lock) -> list:
     return started
 
 
+# HONESTY (D88): fold-parity across two ports with IDENTITY codecs proves the
+# DELIVERY plumbing preserves the fold (sync pull vs async push carry the same
+# canonical events). It does NOT exercise a wire TRANSFORM — that is the harder
+# case, gated only when a codec is grown (D89). "Many beasts, one law" here
+# means many DELIVERIES; many wire FORMATS is the growport claim.
 def fold_parity(genome_path, flows_path, drive_a, drive_b, root) -> str | None:
     """THE PORT LAW-GATE (D88): drive the SAME genome+flows through two
     different port drivers; the fold (state snapshot after flows) MUST be
-    byte-identical. None = certified; else a counterexample string.
+    structurally equal (parsed snapshot equality after decode, NOT raw bytes),
+    over the flows in flows_path. None = certified on those flows; else a
+    counterexample string. This is fuzz-thin (a fixed flow set), not a proof.
     drive_x(events) -> the organism's full state dict after applying them."""
     import yaml
     flows = yaml.safe_load(open(flows_path))["flows"]

@@ -7,6 +7,8 @@ import importlib
 _DIALECTS = {
     "go-stdlib": "onto.dialects.go_stdlib",
     "python-stdlib": "onto.dialects.python_stdlib",
+    "kotlin-stdlib": "onto.dialects.kotlin_stdlib",
+    "rust-stdlib": "onto.dialects.rust_stdlib",
 }
 
 

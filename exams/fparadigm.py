@@ -155,6 +155,20 @@ def main():
     R.append(("warden: entering the ignorance region -> ledger assumption_hit",
               ticks["hits"] == ["overbook_policy"]
               and "assumption_hit" in wled))
+    # D93: sustained time in the ignorance region past quota -> a real
+    # consequence (rights demoted to observational), not just a ledger note
+    w.rights = "interventional"      # simulate rights EARNED before the region
+    rights0 = w.rights
+    revoked = False
+    for _ in range(int(w.quota.value) + 3):
+        if w.tick_assumptions().get("revoked"):
+            revoked = True
+            break
+    wled2 = (w.data / "warden.jsonl").read_text()
+    R.append((f"knowledge quota: sustained hits > quota -> rights DEMOTED "
+              f"({rights0} -> {w.rights}) + revoke_assumption in ledger",
+              revoked and w.rights == "observational"
+              and "revoke_assumption" in wled2))
     interview.resolve_unknown(ws2 / "assumptions.yaml", "overbook_policy")
     R.append(("the world answered: the hole is retracted, the monitor stays silent",
               w.tick_assumptions()["checked"] == 0))

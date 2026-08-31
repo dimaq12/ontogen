@@ -32,6 +32,19 @@ def post(payload, token=None):
         return e.code, json.loads(e.read())
 
 
+def get(path, token=None):
+    """-> (code, body) for a GET route."""
+    hdr = {}
+    if token:
+        hdr["Authorization"] = f"Bearer {token}"
+    req = urllib.request.Request(f"http://127.0.0.1:{PORT}{path}", headers=hdr)
+    try:
+        with urllib.request.urlopen(req, timeout=5) as r:
+            return r.status, json.loads(r.read())
+    except urllib.error.HTTPError as e:
+        return e.code, json.loads(e.read())
+
+
 def main():
     t0 = time.time()
     sys.path.insert(0, str(ROOT / "src"))
@@ -110,11 +123,17 @@ def main():
                     token="tok-alice-admin")
         R.append(("deny-by-default: event with no rule -> 403 even for an admin",
                   c == 403 and "deny-by-default" in b.get("error", "")))
-        # 10. state is honest: only allowed mutations were applied
-        st = json.loads(urllib.request.urlopen(
-            f"http://127.0.0.1:{PORT}/state/wallet/bob", timeout=5).read())
-        R.append((f"final bob.balance == 0 (reset after 100+50): {st['balance']}",
-                  st["balance"] == 0))
+        # 10. the READ plane is authenticated too (D93): no token -> 401
+        cs, _ = get("/state/wallet/bob")
+        R.append(("read plane: /state without a token -> 401 (not open)",
+                  cs == 401))
+        cl, _ = get("/ops/ledger")
+        R.append(("read plane: /ops/ledger without a token -> 401 (journal not "
+                  "public)", cl == 401))
+        # with a valid token the read is honest: only allowed mutations applied
+        cs2, st = get("/state/wallet/bob", token="tok-bob")
+        R.append((f"read plane: /state WITH a token -> 200, bob.balance == 0: "
+                  f"{st.get('balance')}", cs2 == 200 and st["balance"] == 0))
         # 11. denials in the ledger with provenance
         led = [json.loads(l) for l in
                (pathlib.Path(data) / "ledger.jsonl").read_text().splitlines()]

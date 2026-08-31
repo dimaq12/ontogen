@@ -88,10 +88,12 @@ def main():
         for name in registry.names():
             with tempfile.TemporaryDirectory() as td:
                 cert = registry.get(name)["gates"].certificate(corpus, td)
-            print(f"certificate[{name}]: {cert['printer_conformance']} "
-                  f"({cert['embedded_interpreter']})")
-            R.append((f"certificate {name}: conformance 240/240",
-                      cert["printer_conformance"] == "green"))
+            pc = cert["printer_conformance"]
+            print(f"certificate[{name}]: {pc} ({cert['embedded_interpreter']}) "
+                  f"-- {cert.get('detail','')[:80]}")
+            # green (compile-validated) or skipped (no toolchain on this host) pass;
+            # red (a real conformance divergence) fails.
+            R.append((f"certificate {name}: conformance ({pc})", pc != "red"))
 
         # ---- ZERO core edits since F2
         diff = subprocess.run(["git", "diff", "--name-only", F2_COMMIT,

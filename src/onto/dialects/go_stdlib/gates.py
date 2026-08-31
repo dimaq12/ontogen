@@ -114,6 +114,10 @@ def run_conformance(corpus_path, workdir) -> tuple[bool, str]:
 
 def certificate(corpus_path, workdir) -> dict:
     """The dialect's certificate (F2 scope): printer conformance + build."""
+    if find_go() is None:
+        return {"dialect": "go-stdlib", "printer_conformance": "skipped",
+                "embedded_interpreter": "deferred-to-eviction (D28)",
+                "detail": "no go toolchain on this host (NOT compile-validated)"}
     ok, msg = run_conformance(corpus_path, workdir)
     return {"dialect": "go-stdlib", "printer_conformance": "green" if ok else "red",
             "embedded_interpreter": "deferred-to-eviction (D28)", "detail": msg.strip()[:200]}

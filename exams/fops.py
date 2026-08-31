@@ -67,15 +67,15 @@ def main():
                   isinstance(page, str) and "onto ops" in page
                   and "/ops/ledger" in page and "checkpoint" in page
                   and "externals" in page))
-        led = http("/ops/ledger")
+        led = http("/ops/ledger", token="tok-bob")
         R.append((f"/ops/ledger: journal is readable ({led['total']} entries)",
                   led["total"] >= 3))
-        den = http("/ops/ledger?kind=auth_denied")
+        den = http("/ops/ledger?kind=auth_denied", token="tok-bob")
         R.append((f"filter kind=auth_denied: {len(den['entries'])} entries, "
                   "with why provenance",
                   len(den["entries"]) == 3
                   and all("why" in e for e in den["entries"])))
-        lim = http("/ops/ledger?kind=auth_denied&_limit=2")
+        lim = http("/ops/ledger?kind=auth_denied&_limit=2", token="tok-bob")
         R.append(("_limit=2: tail of the journal", len(lim["entries"]) == 2))
         ck = http("/checkpoint", method="POST")
         R.append(("checkpoint from the console works",

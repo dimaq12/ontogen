@@ -170,6 +170,24 @@ def main():
               f"ledger port_trust_revoked={revoked})",
               not pout3.cert_valid and revoked))
 
+    # ---- 4b. after REVOKE the port DROPS emissions (D95): it no longer even
+    #          attempts _send — REVOKE is a real gate, not just a flag
+    attempts_before = pout3.stats.get("failed", 0)
+    sent = []
+    pout3._send = lambda m: sent.append(m)   # would succeed IF attempted
+    for _ in range(50):
+        pin3_ok = True
+        bus3.publish("in3", {"id": "post-revoke", "type": "Ordered",
+                             "order": "Z", "qty": 1})
+        if pout3.stats.get("dropped_revoked", 0) > 0:
+            break
+        time.sleep(0.02)
+    R.append((f"post-REVOKE: emissions DROPPED not attempted "
+              f"(dropped_revoked={pout3.stats.get('dropped_revoked', 0)}, "
+              f"_send calls={len(sent)}, failed unchanged={pout3.stats.get('failed', 0) == attempts_before})",
+              pout3.stats.get("dropped_revoked", 0) >= 1 and len(sent) == 0
+              and pout3.stats.get("failed", 0) == attempts_before))
+
     for b in (bus, bus2, bus3):
         b.stop()
 
