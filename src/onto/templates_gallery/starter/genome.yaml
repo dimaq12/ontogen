@@ -1,0 +1,25 @@
+# Your first genome. The genome is the source of truth; code is a proven,
+# printed phenotype — you never hand-edit the phenotype (the hook guard
+# blocks it). Change behavior by editing this file through `propose`, then
+# `onto court` must stay ALL PROVED.
+onto: 1
+name: starter
+retry_window: 64
+events:
+  Counted: {counter: str, by: int}
+entities:
+  counter:
+    key: counter
+    instances: dynamic
+    state: {total: int}
+    init: {total: 0}
+    rules:
+      count:
+        when: Counted
+        intent: add a positive amount to a counter
+        guard: "ev.by > 0"
+        body: |
+          s.total = s.total + ev.by
+        contract: {post: "s.total >= 0"}
+queries:
+  grand_total: "sum(c.total for c in counter)"

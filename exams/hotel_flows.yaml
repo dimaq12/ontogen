@@ -1,0 +1,23 @@
+# hotel domain judge: booking + independent charges from the payments gene.
+flows:
+  book_and_pay:
+    - post:  {id: h1, type: BookingRequested, room: room101, resv: r1, nights: 2}
+    - post:  {id: h2, type: ChargeRequested, wallet: bob, amount: 200}
+    - state: {entity: room, instance: room101, expect: {booked: 1}}
+    - state: {entity: reservation, instance: r1, expect: {active: 1, nights: 2}}
+    - state: {entity: wallet, instance: bob, expect: {balance: 800, charges: 1}}
+    - query: {name: total_booked, expect: 1}
+    - query: {name: active_resv, expect: 1}
+    - query: {name: total_balance, expect: 1800}
+  overbook_guarded:
+    - post:  {id: h3, type: BookingRequested, room: room101, resv: r2, nights: 1}
+    - state: {entity: room, instance: room101, expect: {booked: 1}}
+    - query: {name: active_resv, expect: 2}      # invariant violated — observer
+  cancel_and_refund:
+    - post:  {id: h4, type: BookingCancelled, room: room101, resv: r1}
+    - post:  {id: h5, type: ChargeRefunded, wallet: bob, amount: 200}
+    - state: {entity: room, instance: room101, expect: {booked: 0}}
+    - state: {entity: wallet, instance: bob, expect: {balance: 1000, charges: 0}}
+  insufficient_funds:
+    - post:  {id: h6, type: ChargeRequested, wallet: alice, amount: 5000}
+    - state: {entity: wallet, instance: alice, expect: {balance: 1000, charges: 0}}

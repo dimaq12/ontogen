@@ -1,0 +1,8 @@
+# DICTIONARY GENE commerce_events: a shared vocabulary of commerce events (shared_events
+# from EPIC v0). Only exports, not a single entity: each consumer (stock, orders)
+# requires ITS OWN subset of fields (structural subtyping F4).
+onto: 1
+module: commerce_events
+events:
+  OrderPlaced:    {order: str, sku: str, wallet: str, qty: int, price: int}
+  OrderCancelled: {order: str, sku: str, qty: int}

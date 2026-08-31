@@ -1,0 +1,127 @@
+# genome
+onto: 1
+name: coworking_rooms
+retry_window: 64
+
+events:
+  RoomAdded: {room_id: str}
+  TeamRegistered: {team_id: str}
+  DepositAdded: {team_id: str, amount: int}
+  BookingRequested: {team_id: str, room_id: str}
+  BookingApproved: {room_id: str, team_id: str}
+  BookingEnded: {team_id: str, room_id: str, hours: int}
+  MaintenanceTick: {room_id: str}
+  MaintenanceCharge: {team_id: str, amount: int}
+
+entities:
+  team:
+    key: team_id
+    instances: dynamic
+    state:
+      deposit: int
+      total_spent: int
+    init:
+      deposit: 0
+      total_spent: 0
+    rules:
+      register:
+        when: TeamRegistered
+        body: |
+          s.deposit = 0
+        contract:
+          post: "s.deposit >= 0 and s.total_spent >= 0"
+      add_deposit:
+        when: DepositAdded
+        guard: "ev.amount > 0"
+        body: |
+          s.deposit = s.deposit + ev.amount
+        contract:
+          post: "s.deposit >= 0 and s.total_spent >= 0"
+      approve_booking:
+        when: BookingRequested
+        guard: "s.deposit >= 20000"
+        body: |
+          s.deposit = s.deposit
+        contract:
+          post: "s.deposit >= 0 and s.total_spent >= 0"
+        emit:
+          - event: BookingApproved
+            fields:
+              room_id: "ev.room_id"
+              team_id: "ev.team_id"
+      charge_booking:
+        when: BookingEnded
+        guard: "ev.hours > 0"
+        body: |
+          s.total_spent = s.total_spent + min(s.deposit, ev.hours * 8000)
+          s.deposit = s.deposit - min(s.deposit, ev.hours * 8000)
+        contract:
+          post: "s.deposit >= 0 and s.total_spent >= 0"
+      charge_maintenance:
+        when: MaintenanceCharge
+        guard: "ev.amount > 0"
+        body: |
+          s.total_spent = s.total_spent + min(s.deposit, ev.amount)
+          s.deposit = s.deposit - min(s.deposit, ev.amount)
+        contract:
+          post: "s.deposit >= 0 and s.total_spent >= 0"
+
+  room:
+    key: room_id
+    instances: dynamic
+    state:
+      occupied: int
+      occupying_team: str
+    init:
+      occupied: 0
+      occupying_team: ""
+    rules:
+      add_room:
+        when: RoomAdded
+        body: |
+          s.occupied = 0
+        contract:
+          post: "s.occupied >= 0 and s.occupied <= 1"
+      mark_occupied:
+        when: BookingApproved
+        guard: "s.occupied == 0"
+        body: |
+          s.occupied = 1
+          s.occupying_team = ev.team_id
+        contract:
+          post: "s.occupied >= 0 and s.occupied <= 1"
+      mark_free:
+        when: BookingEnded
+        guard: "s.occupied == 1"
+        body: |
+          s.occupied = 0
+          s.occupying_team = ""
+        contract:
+          post: "s.occupied >= 0 and s.occupied <= 1"
+      collect_maintenance:
+        when: MaintenanceTick
+        guard: "s.occupied == 1"
+        body: |
+          s.occupied = s.occupied
+        contract:
+          post: "s.occupied >= 0 and s.occupied <= 1"
+        emit:
+          - event: MaintenanceCharge
+            fields:
+              team_id: "s.occupying_team"
+              amount: "500"
+
+queries:
+  rooms_occupied: "sum(r.occupied for r in room)"
+  total_spent: "sum(t.total_spent for t in team)"
+
+timers:
+  maintenance_fee:
+    every_s: 3600
+    event: MaintenanceTick
+    per: room
+    fields: {}
+
+invariants:
+  team_sane: "all(t.deposit >= 0 and t.total_spent >= 0 for t in team)"
+  room_sane: "all(r.occupied >= 0 and r.occupied <= 1 for r in room)"

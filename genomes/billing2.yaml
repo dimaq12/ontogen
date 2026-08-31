@@ -1,0 +1,34 @@
+# GENOME billing2: exam U3 "types-2" (D66) — decimal/timestamp as a
+# representation on the membrane; the semantics (court, log, replay) see only int.
+onto: 1
+name: billing2
+retry_window: 64
+events:
+  Issued: {invoice: str, amount: decimal, due: timestamp}
+  Paid: {invoice: str, paid_at: timestamp}
+entities:
+  invoice:
+    key: invoice
+    instances: dynamic
+    state: {amount: decimal, due: timestamp, paid_at: timestamp, status: str}
+    init: {status: ""}
+    rules:
+      issue:
+        when: Issued
+        intent: issue an invoice
+        guard: "s.status == '' and ev.amount > 0"
+        body: |
+          s.amount = ev.amount
+          s.due = ev.due
+          s.status = 'open'
+        contract: {post: "s.amount > 0 and s.status == 'open'"}
+      pay:
+        when: Paid
+        intent: pay the invoice
+        guard: "s.status == 'open'"
+        body: |
+          s.paid_at = ev.paid_at
+          s.status = 'paid'
+        contract: {post: "s.status == 'paid'"}
+queries:
+  open_total: "sum(i.amount for i in invoice if i.status == 'open')"

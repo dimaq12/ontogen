@@ -1,0 +1,8 @@
+# ROOT lago: a Lago-core v0 tenant (lago/SPEC.md). Subscriptions are dynamic.
+onto: 1
+name: lago
+imports:
+  - modules/lago_metering.yaml
+retry_window: 256
+invariants:
+  money_conserved: "all(x.last_invoice_due <= x.last_invoice_total for x in subscription)"

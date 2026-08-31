@@ -1,0 +1,47 @@
+# flows
+flows:
+  happy_path:
+    - post: {id: tx1, type: RoomAdded, room_id: room1}
+    - state: {entity: room, instance: room1, expect: {occupied: 0, occupying_team: ""}}
+    - post: {id: tx2, type: TeamRegistered, team_id: team1}
+    - state: {entity: team, instance: team1, expect: {deposit: 0, total_spent: 0}}
+    - post: {id: tx3, type: DepositAdded, team_id: team1, amount: 50000}
+    - state: {entity: team, instance: team1, expect: {deposit: 50000, total_spent: 0}}
+    - post: {id: tx4, type: BookingRequested, team_id: team1, room_id: room1}
+    - state: {entity: room, instance: room1, expect: {occupied: 1, occupying_team: team1}}
+    - state: {entity: team, instance: team1, expect: {deposit: 50000, total_spent: 0}}
+    - query: {name: rooms_occupied, expect: 1}
+    - post: {id: tx5, type: BookingEnded, team_id: team1, room_id: room1, hours: 3}
+    - state: {entity: team, instance: team1, expect: {deposit: 26000, total_spent: 24000}}
+    - state: {entity: room, instance: room1, expect: {occupied: 0, occupying_team: ""}}
+    - query: {name: rooms_occupied, expect: 0}
+    - query: {name: total_spent, expect: 24000}
+
+  insufficient_deposit:
+    - post: {id: tx6, type: RoomAdded, room_id: room2}
+    - post: {id: tx7, type: TeamRegistered, team_id: team2}
+    - post: {id: tx8, type: DepositAdded, team_id: team2, amount: 15000}
+    - state: {entity: team, instance: team2, expect: {deposit: 15000, total_spent: 0}}
+    - post: {id: tx9, type: BookingRequested, team_id: team2, room_id: room2}
+    - state: {entity: room, instance: room2, expect: {occupied: 0, occupying_team: ""}}
+    - state: {entity: team, instance: team2, expect: {deposit: 15000, total_spent: 0}}
+    - query: {name: total_spent, expect: 24000}
+
+  maintenance_charge:
+    - post: {id: tx10, type: RoomAdded, room_id: room3}
+    - post: {id: tx11, type: TeamRegistered, team_id: team3}
+    - post: {id: tx12, type: DepositAdded, team_id: team3, amount: 30000}
+    - post: {id: tx13, type: BookingRequested, team_id: team3, room_id: room3}
+    - state: {entity: room, instance: room3, expect: {occupied: 1, occupying_team: team3}}
+    - post: {id: tx14, type: MaintenanceTick, room_id: room3}
+    - state: {entity: team, instance: team3, expect: {deposit: 29500, total_spent: 500}}
+    - query: {name: total_spent, expect: 24500}
+
+  clamped_charge:
+    - post: {id: tx15, type: RoomAdded, room_id: room4}
+    - post: {id: tx16, type: TeamRegistered, team_id: team4}
+    - post: {id: tx17, type: DepositAdded, team_id: team4, amount: 25000}
+    - post: {id: tx18, type: BookingRequested, team_id: team4, room_id: room4}
+    - post: {id: tx19, type: BookingEnded, team_id: team4, room_id: room4, hours: 5}
+    - state: {entity: team, instance: team4, expect: {deposit: 0, total_spent: 25000}}
+    - query: {name: total_spent, expect: 49500}

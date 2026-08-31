@@ -1,0 +1,44 @@
+# GENOME authwallet: exam U4 "auth gene" (D67) — roles/predicates as Expr,
+# the IdP is an island behind the membrane, deny-by-default.
+onto: 1
+name: authwallet
+retry_window: 64
+events:
+  Deposited: {wallet: str, amount: int}
+  AdminReset: {wallet: str}
+  Noop: {wallet: str}
+entities:
+  wallet:
+    key: wallet
+    instances: dynamic
+    state: {balance: int}
+    init: {balance: 0}
+    rules:
+      deposit:
+        when: Deposited
+        intent: top up one's own wallet
+        guard: "ev.amount > 0"
+        body: |
+          s.balance = s.balance + ev.amount
+        contract: {post: "s.balance >= 0"}
+      reset:
+        when: AdminReset
+        intent: zero out the wallet (admin only)
+        body: |
+          s.balance = 0
+        contract: {post: "s.balance == 0"}
+queries:
+  total: "sum(w.balance for w in wallet)"
+externals:
+  idp:
+    island: islands/idp.py
+    provides: authenticate
+    quota: 50
+    assumptions:
+      - "error_rate_pct < 90"
+auth:
+  idp: idp
+  rules:
+    Deposited: "principal.role == 'admin' or ev.wallet == principal.subject"
+    AdminReset: "principal.role == 'admin'"
+    # Noop has NO rule — deny-by-default

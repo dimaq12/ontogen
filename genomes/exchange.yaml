@@ -1,0 +1,35 @@
+# GENOME exchange (SLM wave): a pure algorithmic core — one skill, zero
+# entities. The properties are machine-checked (Expr), including the COMPLETENESS
+# GUARD against a lazy oracle (lesson from v0 wave 5: without it the first measurement lied).
+onto: 1
+name: exchange
+events: {}
+entities: {}
+skills:
+  match_orders:
+    params: {bids: "list[Order]", asks: "list[Order]"}
+    returns: "list[Trade]"
+    types:
+      Order: {id: str, price: int, qty: int, ts: int}
+      Trade: {bid: str, ask: str, price: int, qty: int}
+    intent: >-
+      Match opposing limit orders by price-time priority. While the best bid
+      price >= best ask price, produce a trade for min(remaining qty) at the
+      ASK price. Priority within a side: better price first (higher for bids,
+      lower for asks), earlier ts first on ties, then smaller id
+      lexicographically. Partially filled orders keep priority. Return trades
+      in the order they are produced.
+    properties:
+      - "all(t.qty > 0 for t in out)"
+      # trade price = the ask order's price (ids are unique: sum over filter = the field)
+      - "all(t.price == sum(a.price for a in asks if a.id == t.ask) for t in out)"
+      # price crossing: the bid is not cheaper than the ask
+      - "all(sum(b.price for b in bids if b.id == t.bid) >= sum(a.price for a in asks if a.id == t.ask) for t in out)"
+      # no over-execution
+      - "all(sum(t.qty for t in out if t.bid == b.id) <= b.qty for b in bids)"
+      - "all(sum(t.qty for t in out if t.ask == a.id) <= a.qty for a in asks)"
+      # COMPLETENESS GUARD: no crossing pair remains with both sides under-executed
+      - "all(all(b.price < a.price or sum(t.qty for t in out if t.bid == b.id) == b.qty or sum(t.qty for t in out if t.ask == a.id) == a.qty for a in asks) for b in bids)"
+    # complexity budget (D38): t(4n)/t(n) <= 8 — O(n^2) gives ~16, gets cut off
+    budget: {n: 600, growth: 4, max_ratio: 8}
+    ladder: []          # empty = skills_ladder from the provider config

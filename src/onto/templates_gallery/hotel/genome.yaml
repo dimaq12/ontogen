@@ -1,0 +1,16 @@
+# ROOT hotel: composition of three genes. The root contains NO rules (composition
+# by interfaces, not inheritance — D2): only imports, instance binding
+# and CROSS-module invariants/queries.
+onto: 1
+name: hotel
+imports:
+  - modules/rooms.yaml
+  - modules/reservations.yaml
+  - modules/payments.yaml
+retry_window: 8
+bind:
+  room:        {instances: [room101, room102]}
+  reservation: {instances: [r1, r2, r3]}
+  wallet:      {instances: [bob, alice]}
+invariants:
+  rooms_match_resv: "sum(r.booked for r in room) == sum(1 for r in reservation if r.active == 1)"

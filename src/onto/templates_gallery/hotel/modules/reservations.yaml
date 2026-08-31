@@ -1,0 +1,25 @@
+# GENE reservations: does NOT export events — it REQUIRES them (structural
+# subtyping: reads only resv/nights, the real event may carry more).
+onto: 1
+module: reservations
+requires:
+  events:
+    BookingRequested: {resv: str, nights: int}
+    BookingCancelled: {resv: str}
+entities:
+  reservation:
+    key: resv
+    state: {active: int, nights: int}
+    rules:
+      open:
+        when: BookingRequested
+        body: |
+          s.active = 1
+          s.nights = ev.nights
+      close:
+        when: BookingCancelled
+        guard: "s.active == 1"
+        body: |
+          s.active = 0
+queries:
+  active_resv: "sum(1 for r in reservation if r.active == 1)"

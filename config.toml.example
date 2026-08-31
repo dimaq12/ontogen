@@ -1,0 +1,35 @@
+# onto model registry — copy to .onto/config.toml (gitignored, chmod 600).
+# Register as many OpenAI-compatible providers as you like; reference models
+# as "provider:model" in ladders, or bare (-> the default provider).
+# Known provider names get a base_url preset automatically — you only give a key.
+# Presets: openrouter, openai, groq, together, deepseek, mistral, fireworks,
+#          xai, ollama, local (vLLM/llama.cpp), lmstudio.
+
+[default]
+provider = "openrouter"          # where bare model names route
+
+[provider.openrouter]
+api_key = "${OPENROUTER_API_KEY}"   # ${ENV}, $ENV, @/path/to/keyfile, or literal
+# base_url is auto from the preset; override only for a proxy.
+# extra_headers = { "HTTP-Referer" = "https://your.project" }
+# extra_body = { provider = { order = ["SiliconFlow"] } }
+
+# A second provider — native OpenAI:
+[provider.openai]
+api_key = "${OPENAI_API_KEY}"
+
+# A local model server (Ollama / vLLM / LM Studio) — no key needed:
+[provider.local]
+base_url = "http://localhost:11434/v1"
+api_key = "ollama"
+
+# Per-task ladders: climbed on gate failure, cheap -> strong. Mix providers
+# freely. If omitted, sensible defaults apply (nl uses a strong model).
+[ladders]
+skills  = ["qwen/qwen3-coder", "qwen/qwen3-coder-plus"]
+dialect = ["qwen/qwen3-coder", "openai:gpt-4o-mini"]
+island  = ["local:qwen2.5-coder", "qwen/qwen3-coder"]
+nl      = ["anthropic/claude-sonnet-4.5", "anthropic/claude-opus-4.6"]
+
+# Legacy form still works: a single [provider.openrouter] with base_url+api_key
+# and [ribosome] skills_ladder = [...].

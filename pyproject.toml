@@ -1,0 +1,33 @@
+[project]
+name = "ontogen"
+version = "1.3.0"
+description = "onto: a living ontology compiler — programs are genomes; code is a proven, printed phenotype"
+readme = "README.md"
+keywords = ["ontology", "compiler", "formal-verification", "smt", "code-generation", "genome"]
+license = "Apache-2.0"
+requires-python = ">=3.13,<3.14"
+dependencies = [
+    "mcp>=2.0.0",
+    "pydantic>=2.7",
+    "PyYAML>=6",
+    "z3-solver>=4.13",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+    "lark>=1.2",
+    "cel-python>=0.2",
+]
+
+[project.scripts]
+onto = "onto.cli:main"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/onto"]
+# templates_gallery (yaml/py data) lives under the package and ships with it.
+artifacts = ["onto/templates_gallery/**"]

@@ -1,0 +1,85 @@
+# GENOME booking (F1): reference semantics IN THE GENOME — rule bodies are executable
+# by the interpreter (SPEC §10.1). Check scenarios live with the judge (exams/), not here.
+onto: 1
+name: booking
+
+retry_window: 8            # dedup contract: an id older than the window is not a duplicate
+
+events:
+  BookingRequested: {resv: str, room: str, guest: str, nights: int, price: int}
+  BookingCancelled: {resv: str, room: str, guest: str, nights: int, price: int}
+
+entities:
+  room:
+    key: room
+    instances: [room101, room102, room103]
+    state: {capacity: int, booked: int}
+    init:  {capacity: 1, booked: 0}
+    rules:
+      reserve:
+        when: BookingRequested
+        intent: reserve a room if space is available; overbooking is forbidden
+        guard: "s.booked < s.capacity"
+        body: |
+          s.booked = s.booked + 1
+        contract:
+          post: "s.booked >= 0 and s.booked <= s.capacity"
+      free:
+        when: BookingCancelled
+        intent: free a room on cancellation (never below zero)
+        guard: "s.booked > 0"
+        body: |
+          s.booked = s.booked - 1
+        contract:
+          post: "s.booked >= 0 and s.booked <= s.capacity"
+
+  guest:
+    key: guest
+    instances: [bob, alice, carol]
+    state: {bookings: int, credit: int}
+    init:  {bookings: 0, credit: 1000}
+    rules:
+      charge:
+        when: BookingRequested
+        intent: deduct the booking price from the guest's credit
+        guard: "ev.price > 0 and s.credit >= ev.price"
+        body: |
+          s.credit = s.credit - ev.price
+          s.bookings = s.bookings + 1
+        contract:
+          post: "s.credit >= 0 and s.bookings >= 0"
+      uncharge:
+        when: BookingCancelled
+        intent: refund the price on cancellation
+        guard: "s.bookings > 0"
+        body: |
+          s.credit = s.credit + ev.price
+          s.bookings = s.bookings - 1
+        contract:
+          post: "s.bookings >= 0"
+
+  reservation:
+    key: resv
+    instances: [r1, r2, r3, r4]
+    state: {active: int, nights: int}
+    init:  {active: 0, nights: 0}
+    rules:
+      open:
+        when: BookingRequested
+        intent: open the reservation (unconditionally — consistency is watched by the invariant)
+        body: |
+          s.active = 1
+          s.nights = ev.nights
+      close:
+        when: BookingCancelled
+        guard: "s.active == 1"
+        body: |
+          s.active = 0
+
+invariants:
+  rooms_match_resv: "sum(r.booked for r in room) == sum(1 for r in reservation if r.active == 1)"
+
+queries:
+  total_booked: "sum(r.booked for r in room)"
+  active_resv: "sum(1 for r in reservation if r.active == 1)"
+  total_credit: "sum(g.credit for g in guest)"

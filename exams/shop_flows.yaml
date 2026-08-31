@@ -1,0 +1,17 @@
+# shop domain judge: warehouse + the SAME payments gene without a single edit.
+flows:
+  order_and_pay:
+    - post:  {id: s1, type: OrderPlaced, order: x1, sku: alpha, wallet: carol, qty: 30, price: 300}
+    - post:  {id: s2, type: ChargeRequested, wallet: carol, amount: 300}
+    - state: {entity: sku, instance: alpha, expect: {available: 70, reserved: 30}}
+    - state: {entity: wallet, instance: carol, expect: {balance: 700, charges: 1}}
+    - query: {name: total_available, expect: 170}
+    - query: {name: total_balance, expect: 700}
+  conservation_guarded:
+    - post:  {id: s3, type: OrderPlaced, order: x2, sku: alpha, wallet: carol, qty: 999, price: 1}
+    - state: {entity: sku, instance: alpha, expect: {available: 70, reserved: 30}}
+  release:
+    - post:  {id: s4, type: OrderCancelled, order: x1, sku: alpha, qty: 30}
+    - post:  {id: s5, type: ChargeRefunded, wallet: carol, amount: 300}
+    - state: {entity: sku, instance: alpha, expect: {available: 100, reserved: 0}}
+    - state: {entity: wallet, instance: carol, expect: {balance: 1000, charges: 0}}

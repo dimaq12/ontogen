@@ -1,0 +1,33 @@
+# GENE support: tickets (0 none -> 1 open -> 2 escalated; 3 closed from 1 or 2).
+onto: 1
+module: support
+events:
+  TicketOpened:    {ticket: str, order: str}
+  TicketEscalated: {ticket: str}
+  TicketClosed:    {ticket: str}
+entities:
+  ticket:
+    key: ticket
+    state: {phase: int, escalations: int}
+    rules:
+      open:
+        when: TicketOpened
+        guard: "s.phase == 0"
+        body: |
+          s.phase = 1
+        contract: {post: "s.phase >= 0 and s.phase <= 3"}
+      escalate:
+        when: TicketEscalated
+        guard: "s.phase == 1"
+        body: |
+          s.phase = 2
+          s.escalations = s.escalations + 1
+        contract: {post: "s.phase >= 0 and s.phase <= 3 and s.escalations >= 0"}
+      close:
+        when: TicketClosed
+        guard: "s.phase >= 1 and s.phase <= 2"
+        body: |
+          s.phase = 3
+        contract: {post: "s.phase >= 0 and s.phase <= 3"}
+queries:
+  open_tickets: "sum(1 for t in ticket if t.phase == 1 or t.phase == 2)"

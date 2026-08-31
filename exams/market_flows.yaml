@@ -1,0 +1,36 @@
+# market judge: lifecycle, cancellation with refund, state-machine veto,
+# support. Instances o09/o10, s05, t05, dave/erin — untouched by load.
+flows:
+  full_lifecycle:
+    - post:  {id: m1, type: OrderPlaced, order: o09, sku: echo, wallet: dave, qty: 2, price: 80}
+    - post:  {id: m2, type: ChargeRequested, wallet: dave, amount: 160}
+    - post:  {id: m3, type: OrderPaid, order: o09}
+    - post:  {id: m4, type: ShipmentCreated, shipment: s05, order: o09}
+    - post:  {id: m5, type: OrderShipped, order: o09, shipment: s05}
+    - post:  {id: m6, type: ShipmentDelivered, shipment: s05}
+    - post:  {id: m7, type: OrderDelivered, order: o09}
+    - post:  {id: m8, type: LoyaltyAccrued, member: dave, points: 16}
+    - state: {entity: order, instance: o09, expect: {phase: 4, paid: 1}}
+    - state: {entity: sku, instance: echo, expect: {available: 98, reserved: 2}}
+    - state: {entity: wallet, instance: dave, expect: {balance: 840, charges: 1}}
+    - state: {entity: member, instance: dave, expect: {points: 16}}
+  cancel_and_refund:
+    - post:  {id: c1, type: OrderPlaced, order: o10, sku: foxtrot, wallet: erin, qty: 5, price: 40}
+    - post:  {id: c2, type: ChargeRequested, wallet: erin, amount: 200}
+    - post:  {id: c3, type: OrderPaid, order: o10}
+    - post:  {id: c4, type: OrderCancelled, order: o10, sku: foxtrot, qty: 5}
+    - post:  {id: c5, type: ChargeRefunded, wallet: erin, amount: 200}
+    - state: {entity: order, instance: o10, expect: {phase: 5}}
+    - state: {entity: sku, instance: foxtrot, expect: {available: 100, reserved: 0}}
+    - state: {entity: wallet, instance: erin, expect: {balance: 1000, charges: 0}}
+  state_machine_veto:
+    - post:  {id: v1, type: OrderPaid, order: o09}          # already delivered
+    - state: {entity: order, instance: o09, expect: {phase: 4}}
+    - post:  {id: v2, type: OrderDelivered, order: o10}     # cancelled
+    - state: {entity: order, instance: o10, expect: {phase: 5}}
+  support_lifecycle:
+    - post:  {id: u1, type: TicketOpened, ticket: t05, order: o09}
+    - post:  {id: u2, type: TicketEscalated, ticket: t05}
+    - post:  {id: u3, type: TicketClosed, ticket: t05}
+    - state: {entity: ticket, instance: t05, expect: {phase: 3, escalations: 1}}
+    - query: {name: open_tickets, expect: 0}

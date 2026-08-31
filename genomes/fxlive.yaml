@@ -1,0 +1,47 @@
+# GENOME fxlive: exam "an island grows a model" (D63, IDEAL pearl 4).
+# The outside world is a flaky currency converter; the fx_adapter island is NOT written
+# by a human: it is grown by the SLM from intent+cases, the gates are acceptance through flakiness.
+onto: 1
+name: fxlive
+retry_window: 64
+events:
+  Deposited: {wallet: str, amount: int}
+entities:
+  wallet:
+    key: wallet
+    instances: [main]
+    state: {balance: int}
+    init: {balance: 0}
+    rules:
+      deposit:
+        when: Deposited
+        intent: top up the balance
+        guard: "ev.amount > 0"
+        body: |
+          s.balance = s.balance + ev.amount
+        contract: {post: "s.balance >= 0"}
+queries:
+  balance_total: "sum(w.balance for w in wallet)"
+externals:
+  fx:
+    island: islands/fx_adapter.py        # the file is GROWN (onto growisland)
+    provides: convert
+    quota: 4
+    assumptions:
+      - "latency_ms < 2000"
+      - "error_rate_pct < 40"
+    intent: |
+      Currency converter. Upstream: POST http://127.0.0.1:<PORT>/rate, where PORT
+      is taken from the FX_PORT environment variable (default 8641). Request body —
+      JSON {"from": str, "to": str, "amount": int}; upstream response — JSON
+      {"status": "ok", "rate": int (percent), "converted": int}.
+      The adapter returns {"converted": <int>, "rate": <int>}.
+      The upstream is FLAKY: periodic HTTP 500s and delays — retry up to 3 times
+      with a ~0.05s pause, 1s timeout per attempt.
+    cases:
+      - {payload: {from: USD, to: EUR, amount: 100}, expect: {converted: 90, rate: 90}}
+      - {payload: {from: USD, to: EUR, amount: 200}, expect: {converted: 180}}
+      - {payload: {from: USD, to: EUR, amount: 50},  expect: {converted: 45, rate: "*"}}
+      - {payload: {from: USD, to: EUR, amount: 10},  expect: {converted: 9}}
+      - {payload: {from: USD, to: EUR, amount: 1000}, expect: {converted: 900}}
+      - {payload: {from: USD, to: EUR, amount: 7},   expect: {converted: 6}}

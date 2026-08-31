@@ -1,0 +1,47 @@
+# Violator of the rule/skill boundary: an "algorithm" body exceeds the AST limit —
+# the engine MUST refuse with the words "this is a skill" (exam F1).
+onto: 1
+name: smuggler
+events:
+  Tick: {sku: str, q1: int, q2: int, q3: int, q4: int, q5: int, q6: int, q7: int, q8: int}
+entities:
+  sku:
+    instances: [alpha]
+    state: {a: int, b: int, c: int, d: int}
+    init: {a: 0, b: 0, c: 0, d: 0}
+    rules:
+      crunch:
+        when: Tick
+        body: |
+          if ev.q1 > ev.q2:
+            s.a = ev.q1 * 3 + ev.q3 - ev.q4
+          else:
+            s.a = ev.q2 * 2 + ev.q5
+          if ev.q3 > ev.q4:
+            s.b = ev.q3 % 7 + ev.q6
+          else:
+            s.b = ev.q4 // 2 - ev.q7
+          if ev.q5 > ev.q6:
+            s.c = ev.q5 + ev.q8 * 2
+          else:
+            s.c = ev.q6 - ev.q1
+          if ev.q7 > ev.q8:
+            s.d = s.a + s.b + s.c
+          else:
+            s.d = s.a - s.b - s.c + ev.q2
+          if ev.q2 > ev.q3:
+            s.a = ev.q2 * 5 + ev.q6 - ev.q1
+          else:
+            s.a = ev.q3 * 4 + ev.q8
+          if ev.q4 > ev.q5:
+            s.b = ev.q4 % 3 + ev.q7
+          else:
+            s.b = ev.q5 // 3 - ev.q2
+          if ev.q6 > ev.q7:
+            s.c = ev.q6 + ev.q1 * 3
+          else:
+            s.c = ev.q7 - ev.q8
+          if ev.q8 > ev.q1:
+            s.d = s.a * 2 - s.b + s.c
+          else:
+            s.d = s.b * 2 - s.a - s.c + ev.q5

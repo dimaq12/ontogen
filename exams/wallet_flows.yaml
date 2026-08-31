@@ -1,0 +1,11 @@
+# Judge of the extracted wallet service (after molt): the same payments gene.
+flows:
+  charge_refund:
+    - post:  {id: w1, type: ChargeRequested, wallet: bob, amount: 300}
+    - state: {entity: wallet, instance: bob, expect: {balance: 700, charges: 1}}
+    - post:  {id: w2, type: ChargeRefunded, wallet: bob, amount: 300}
+    - state: {entity: wallet, instance: bob, expect: {balance: 1000, charges: 0}}
+    - query: {name: total_balance, expect: 2000}
+  guard_insufficient:
+    - post:  {id: w3, type: ChargeRequested, wallet: alice, amount: 99999}
+    - state: {entity: wallet, instance: alice, expect: {balance: 1000, charges: 0}}

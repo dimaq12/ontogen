@@ -1,0 +1,28 @@
+# Judge scenarios (OUTSIDE the genome, NOT §8). The order matters:
+# the judge runs them on a single organism top to bottom.
+flows:
+  happy_booking:
+    - post:  {id: e1, type: BookingRequested, resv: r1, room: room101, guest: bob, nights: 2, price: 100}
+    - state: {entity: room, instance: room101, expect: {booked: 1}}
+    - state: {entity: guest, instance: bob, expect: {credit: 900, bookings: 1}}
+    - state: {entity: reservation, instance: r1, expect: {active: 1, nights: 2}}
+    - query: {name: total_booked, expect: 1}
+    - query: {name: active_resv, expect: 1}
+  overbook_guarded:
+    - post:  {id: e2, type: BookingRequested, resv: r2, room: room101, guest: alice, nights: 1, price: 50}
+    - state: {entity: room, instance: room101, expect: {booked: 1}}   # guard held
+    - state: {entity: guest, instance: alice, expect: {credit: 950}}  # but the guest was charged
+    - query: {name: active_resv, expect: 2}                           # and the booking opened — invariant violated (observer)
+  dedup_same_id:
+    - post:  {id: e1, type: BookingRequested, resv: r3, room: room102, guest: carol, nights: 1, price: 10}
+    - state: {entity: room, instance: room102, expect: {booked: 0}}   # duplicate id e1 — no effect
+    - query: {name: total_booked, expect: 1}
+  cancel:
+    - post:  {id: e3, type: BookingCancelled, resv: r1, room: room101, guest: bob, nights: 2, price: 100}
+    - state: {entity: room, instance: room101, expect: {booked: 0}}
+    - state: {entity: guest, instance: bob, expect: {credit: 1000, bookings: 0}}
+    - query: {name: total_booked, expect: 0}
+  insufficient_credit:
+    - post:  {id: e4, type: BookingRequested, resv: r4, room: room103, guest: bob, nights: 90, price: 9000}
+    - state: {entity: guest, instance: bob, expect: {credit: 1000}}   # guard: not enough credit
+    - state: {entity: room, instance: room103, expect: {booked: 1}}   # but the room got occupied (splitting — visible)

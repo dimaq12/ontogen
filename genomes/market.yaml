@@ -1,0 +1,69 @@
+# ROOT market — MEGA-MESS: 6 genes (payments AGAIN, a third domain),
+# 3 external integrations with different failure profiles, a live SLM allocation
+# skill, fuzzy contracts, racy cross-invariants (observers).
+onto: 1
+name: market
+imports:
+  - ../modules/commerce_events.yaml
+  - ../modules/stock.yaml
+  - ../modules/payments.yaml
+  - ../modules/orders.yaml
+  - ../modules/shipping.yaml
+  - ../modules/loyalty.yaml
+  - ../modules/support.yaml
+retry_window: 64
+bind:
+  sku:      {instances: [alpha, bravo, charlie, delta, echo, foxtrot]}
+  wallet:   {instances: [bob, alice, carol, dave, erin]}
+  order:    {instances: [o01, o02, o03, o04, o05, o06, o07, o08, o09, o10]}
+  shipment: {instances: [s01, s02, s03, s04, s05, s06]}
+  member:   {instances: [bob, alice, carol, dave, erin]}
+  ticket:   {instances: [t01, t02, t03, t04, t05, t06]}
+invariants:
+  # RACY BY DESIGN (observer): no more delivered orders than
+  # delivered shipments — in real life events arrive out of order
+  delivery_consistency: "sum(1 for o in order if o.phase == 4) <= sum(1 for sh in shipment if sh.phase == 2)"
+  money_sane: "sum(w.balance for w in wallet) <= 5000"
+externals:
+  gateway:
+    island: islands/gateway.py
+    provides: charge
+    assumptions: ["latency_ms < 120", "error_rate_pct < 15"]
+    quota: 5
+  tracker:
+    island: islands/tracker.py
+    provides: track
+    assumptions: ["error_rate_pct < 20"]
+    quota: 8
+  fraud:
+    island: islands/fraudscore.py
+    provides: score
+    assumptions: ["latency_ms < 50", "error_rate_pct < 15"]
+    quota: 6
+skills:
+  allocate:
+    params: {demands: "list[Demand]", stocks: "list[Stock]"}
+    returns: "list[Alloc]"
+    types:
+      Demand: {id: str, sku: str, qty: int, priority: int}
+      Stock:  {sku: str, available: int}
+      Alloc:  {id: str, sku: str, qty: int}
+    intent: >-
+      Allocate stock to demands. Higher priority first (larger number wins);
+      ties broken by smaller id lexicographically. A demand may be partially
+      filled; never exceed a demand's qty nor the TOTAL available stock of a
+      sku (stocks may contain several rows per sku — they add up). Each
+      demand gets at most one allocation entry (skip if 0). Return allocations
+      in the order demands were satisfied.
+    properties:
+      - "all(a.qty > 0 for a in out)"
+      - "all(sum(a.qty for a in out if a.id == d.id) <= d.qty for d in demands)"
+      # AGGREGATE stock semantics (a clarification of the fuzziness exposed by fuzzing:
+      # duplicate rows for one sku = total capacity)
+      - "all(sum(a.qty for a in out if a.sku == st.sku) <= sum(x.available for x in stocks if x.sku == st.sku) for st in stocks)"
+      # sku match: an allocation references the sku of its own demand
+      - "all(sum(1 for d in demands if d.id == a.id and d.sku == a.sku) >= 1 for a in out)"
+      # COMPLETENESS GUARD: no sku with remaining total stock and an under-filled demand
+      - "all(all(st.sku != d.sku or sum(a.qty for a in out if a.id == d.id) == d.qty or sum(a.qty for a in out if a.sku == st.sku) == sum(x.available for x in stocks if x.sku == st.sku) for d in demands) for st in stocks)"
+    budget: {n: 300, growth: 4, max_ratio: 12}
+    ladder: []

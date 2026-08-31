@@ -1,0 +1,16 @@
+__pycache__/
+*.pyc
+.venv/
+.pytest_cache/
+build/
+*.egg-info/
+.onto/
+# generated attestations, keys, live config (never commit)
+genomes/attest.json
+genomes/attest.md
+**/attest.json
+**/attest.md
+.pypirc
+*.pypirc
+config.toml
+dist/

@@ -1,0 +1,11 @@
+# ROOT shop: a different domain, REUSES the payments gene as-is.
+onto: 1
+name: shop
+imports:
+  - ../modules/commerce_events.yaml
+  - ../modules/stock.yaml
+  - ../modules/payments.yaml
+retry_window: 16
+bind:
+  sku:    {instances: [alpha, bravo]}
+  wallet: {instances: [carol]}

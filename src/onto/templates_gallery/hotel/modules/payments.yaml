@@ -1,0 +1,39 @@
+# GENE payments: a self-contained wallet module. Reused AS-IS in any
+# domain (hotel, shop): the importer gets events+entity+contracts; the bodies
+# regrow from the same reference => the printed bodies match byte-for-byte.
+onto: 1
+module: payments
+events:
+  ChargeRequested: {wallet: str, amount: int}
+  ChargeRefunded:  {wallet: str, amount: int}
+  WalletFrozen:    {wallet: str}
+entities:
+  wallet:
+    key: wallet
+    state: {balance: int, charges: int, frozen: int}
+    init:  {balance: 1000}          # charges: default 0 (F4)
+    rules:
+      charge:
+        when: ChargeRequested
+        intent: deduct the amount if the balance is sufficient
+        guard: "ev.amount > 0 and s.balance >= ev.amount and s.frozen == 0"
+        body: |
+          s.balance = s.balance - ev.amount
+          s.charges = s.charges + 1
+        contract: {post: "s.balance >= 0 and s.charges >= 0"}
+      freeze:
+        when: WalletFrozen
+        intent: freeze the wallet — further charges are forbidden
+        body: |
+          s.frozen = 1
+        contract: {post: "s.frozen == 1"}
+      refund:
+        when: ChargeRefunded
+        intent: refund the amount for a reversed charge
+        guard: "s.charges > 0"
+        body: |
+          s.balance = s.balance + ev.amount
+          s.charges = s.charges - 1
+        contract: {post: "s.charges >= 0"}
+queries:
+  total_balance: "sum(w.balance for w in wallet)"

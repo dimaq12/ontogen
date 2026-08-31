@@ -1,0 +1,13 @@
+# billing2 domain judge (certification of the dialect generator: dynamic + guards).
+flows:
+  issue_and_pay:
+    - post:  {id: b1, type: Issued, invoice: A-1, amount: 12345, due: 1788264000}
+    - state: {entity: invoice, instance: A-1, expect: {amount: 12345, status: open}}
+    - post:  {id: b2, type: Paid, invoice: A-1, paid_at: 1788264100}
+    - state: {entity: invoice, instance: A-1, expect: {status: paid, paid_at: 1788264100}}
+    - query: {name: open_total, expect: 0}
+  guard_blocks_double_issue:
+    - post:  {id: b3, type: Issued, invoice: A-2, amount: 500, due: 100}
+    - post:  {id: b4, type: Issued, invoice: A-2, amount: 900, due: 100}
+    - state: {entity: invoice, instance: A-2, expect: {amount: 500}}
+    - query: {name: open_total, expect: 500}

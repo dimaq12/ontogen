@@ -1,0 +1,27 @@
+# GENE loyalty: points. FUZZINESS: accrue with no ceiling (a real project:
+# "we'll figure out a cap later") — the contract is honestly weak.
+onto: 1
+module: loyalty
+events:
+  LoyaltyAccrued:  {member: str, points: int}
+  LoyaltyRedeemed: {member: str, points: int}
+entities:
+  member:
+    key: member
+    state: {points: int, redeemed: int}
+    rules:
+      accrue:
+        when: LoyaltyAccrued
+        guard: "ev.points > 0"
+        body: |
+          s.points = s.points + ev.points
+        contract: {post: "s.points >= 0"}
+      redeem:
+        when: LoyaltyRedeemed
+        guard: "ev.points > 0 and s.points >= ev.points"
+        body: |
+          s.points = s.points - ev.points
+          s.redeemed = s.redeemed + ev.points
+        contract:
+          post: "s.points >= 0 and s.redeemed >= 0"
+          conserves: "s.points + s.redeemed"

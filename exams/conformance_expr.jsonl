@@ -1,0 +1,240 @@
+{"env": {"ev": {"q": -2, "who": "bob"}, "items": [], "s": {"a": -9, "b": -1, "flag": 0}}, "expected": -14, "expr": "s.a + s.b * 5"}
+{"env": {"ev": {"q": -8, "who": "bob"}, "items": [], "s": {"a": 8, "b": -7, "flag": 1}}, "expected": -27, "expr": "s.a + s.b * 5"}
+{"env": {"ev": {"q": 8, "who": "alice"}, "items": [{"on": 1, "x": 5}], "s": {"a": 7, "b": -9, "flag": 0}}, "expected": 25, "expr": "s.a + s.b * -2"}
+{"env": {"ev": {"q": 1, "who": "alice"}, "items": [{"on": 1, "x": -3}], "s": {"a": -9, "b": -4, "flag": 1}}, "expected": -37, "expr": "s.a + s.b * 7"}
+{"env": {"ev": {"q": 2, "who": "carol"}, "items": [{"on": 1, "x": -8}, {"on": 0, "x": 8}], "s": {"a": 3, "b": -6, "flag": 1}}, "expected": 27, "expr": "s.a + s.b * -4"}
+{"env": {"ev": {"q": 2, "who": "carol"}, "items": [{"on": 0, "x": -7}], "s": {"a": -7, "b": 8, "flag": 1}}, "expected": 65, "expr": "s.a + s.b * 9"}
+{"env": {"ev": {"q": -6, "who": "alice"}, "items": [{"on": 1, "x": 5}, {"on": 1, "x": -4}], "s": {"a": 0, "b": -7, "flag": 0}}, "expected": -35, "expr": "s.a + s.b * 5"}
+{"env": {"ev": {"q": 8, "who": "carol"}, "items": [{"on": 1, "x": -4}], "s": {"a": -1, "b": -7, "flag": 0}}, "expected": -1, "expr": "s.a + s.b * 0"}
+{"env": {"ev": {"q": -8, "who": "bob"}, "items": [], "s": {"a": 8, "b": -2, "flag": 1}}, "expected": 6, "expr": "s.a + s.b * 1"}
+{"env": {"ev": {"q": -3, "who": "carol"}, "items": [{"on": 1, "x": -3}, {"on": 1, "x": 3}], "s": {"a": 3, "b": -1, "flag": 0}}, "expected": -4, "expr": "s.a + s.b * 7"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 1, "x": 3}, {"on": 0, "x": -2}, {"on": 1, "x": 7}, {"on": 0, "x": -7}], "s": {"a": -5, "b": -2, "flag": 1}}, "expected": 1, "expr": "s.a + s.b * -3"}
+{"env": {"ev": {"q": -7, "who": "alice"}, "items": [{"on": 1, "x": 5}, {"on": 0, "x": 8}, {"on": 1, "x": -6}], "s": {"a": -5, "b": -4, "flag": 1}}, "expected": -37, "expr": "s.a + s.b * 8"}
+{"env": {"ev": {"q": 4, "who": "bob"}, "items": [{"on": 1, "x": -9}, {"on": 0, "x": 7}, {"on": 0, "x": 7}], "s": {"a": 1, "b": -6, "flag": 1}}, "expected": 7, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": -5, "who": "alice"}, "items": [{"on": 0, "x": 8}], "s": {"a": 0, "b": 7, "flag": 0}}, "expected": -7, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": 2, "who": "alice"}, "items": [{"on": 0, "x": -8}], "s": {"a": 6, "b": -9, "flag": 0}}, "expected": 15, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [{"on": 1, "x": -5}], "s": {"a": -7, "b": -7, "flag": 1}}, "expected": 0, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": -3, "who": "carol"}, "items": [{"on": 1, "x": 0}], "s": {"a": -1, "b": 7, "flag": 1}}, "expected": -8, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": -6, "who": "bob"}, "items": [{"on": 1, "x": -7}], "s": {"a": 2, "b": 5, "flag": 1}}, "expected": -3, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": -9, "who": "bob"}, "items": [], "s": {"a": 8, "b": -2, "flag": 0}}, "expected": 10, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": 7, "who": "bob"}, "items": [{"on": 0, "x": 6}, {"on": 0, "x": 8}], "s": {"a": -8, "b": 1, "flag": 0}}, "expected": -9, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": 6, "who": "alice"}, "items": [{"on": 0, "x": -6}], "s": {"a": 9, "b": 6, "flag": 0}}, "expected": 3, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": 5, "who": "carol"}, "items": [], "s": {"a": 2, "b": 4, "flag": 1}}, "expected": -2, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": 1, "who": "bob"}, "items": [{"on": 0, "x": -3}], "s": {"a": -6, "b": -8, "flag": 1}}, "expected": 2, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": -1, "who": "alice"}, "items": [{"on": 1, "x": -7}], "s": {"a": -5, "b": 4, "flag": 0}}, "expected": -9, "expr": "s.a - s.b"}
+{"env": {"ev": {"q": 8, "who": "bob"}, "items": [], "s": {"a": 8, "b": -6, "flag": 0}}, "expected": 1, "expr": "s.a // 7"}
+{"env": {"ev": {"q": 6, "who": "alice"}, "items": [{"on": 0, "x": 3}], "s": {"a": -2, "b": -4, "flag": 1}}, "expected": -1, "expr": "s.a // 7"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 1, "x": 8}, {"on": 0, "x": -5}, {"on": 0, "x": 0}], "s": {"a": -9, "b": 3, "flag": 1}}, "expected": -3, "expr": "s.a // 4"}
+{"env": {"ev": {"q": -8, "who": "bob"}, "items": [{"on": 0, "x": 6}, {"on": 0, "x": -8}, {"on": 0, "x": -4}, {"on": 0, "x": -7}], "s": {"a": 8, "b": -8, "flag": 1}}, "expected": 1, "expr": "s.a // 5"}
+{"env": {"ev": {"q": -7, "who": "alice"}, "items": [{"on": 1, "x": 9}, {"on": 0, "x": -1}, {"on": 0, "x": 1}, {"on": 1, "x": -1}], "s": {"a": 9, "b": -2, "flag": 0}}, "expected": 9, "expr": "s.a // 1"}
+{"env": {"ev": {"q": -7, "who": "bob"}, "items": [{"on": 0, "x": 9}, {"on": 0, "x": -7}, {"on": 1, "x": 7}], "s": {"a": 0, "b": 5, "flag": 1}}, "expected": 0, "expr": "s.a // 6"}
+{"env": {"ev": {"q": 0, "who": "bob"}, "items": [{"on": 1, "x": 8}, {"on": 0, "x": 7}, {"on": 1, "x": 8}], "s": {"a": -7, "b": -2, "flag": 1}}, "expected": -3, "expr": "s.a // 3"}
+{"env": {"ev": {"q": -6, "who": "bob"}, "items": [{"on": 1, "x": -5}, {"on": 0, "x": 0}, {"on": 0, "x": 1}, {"on": 1, "x": -1}], "s": {"a": -6, "b": -5, "flag": 1}}, "expected": -1, "expr": "s.a // 6"}
+{"env": {"ev": {"q": -1, "who": "bob"}, "items": [], "s": {"a": -8, "b": -7, "flag": 1}}, "expected": -2, "expr": "s.a // 7"}
+{"env": {"ev": {"q": 5, "who": "carol"}, "items": [{"on": 0, "x": 8}, {"on": 0, "x": -6}, {"on": 0, "x": -5}], "s": {"a": -5, "b": -1, "flag": 0}}, "expected": -1, "expr": "s.a // 7"}
+{"env": {"ev": {"q": 4, "who": "bob"}, "items": [], "s": {"a": 9, "b": 8, "flag": 0}}, "expected": 3, "expr": "s.a // 3"}
+{"env": {"ev": {"q": -2, "who": "carol"}, "items": [], "s": {"a": -8, "b": 2, "flag": 0}}, "expected": -3, "expr": "s.a // 3"}
+{"env": {"ev": {"q": -2, "who": "bob"}, "items": [{"on": 0, "x": 4}], "s": {"a": 8, "b": 4, "flag": 0}}, "expected": 1, "expr": "s.a % 7"}
+{"env": {"ev": {"q": -1, "who": "bob"}, "items": [], "s": {"a": 1, "b": 4, "flag": 0}}, "expected": 1, "expr": "s.a % 6"}
+{"env": {"ev": {"q": -3, "who": "alice"}, "items": [{"on": 0, "x": 0}, {"on": 0, "x": -2}], "s": {"a": -8, "b": 6, "flag": 0}}, "expected": 6, "expr": "s.a % 7"}
+{"env": {"ev": {"q": -7, "who": "alice"}, "items": [{"on": 1, "x": 7}, {"on": 1, "x": 8}], "s": {"a": 3, "b": 1, "flag": 1}}, "expected": 1, "expr": "s.a % 2"}
+{"env": {"ev": {"q": -8, "who": "bob"}, "items": [{"on": 1, "x": 4}, {"on": 1, "x": 1}, {"on": 0, "x": 7}, {"on": 0, "x": 3}], "s": {"a": -1, "b": -4, "flag": 1}}, "expected": 0, "expr": "s.a % 1"}
+{"env": {"ev": {"q": 2, "who": "alice"}, "items": [], "s": {"a": 4, "b": -9, "flag": 0}}, "expected": 0, "expr": "s.a % 1"}
+{"env": {"ev": {"q": 7, "who": "alice"}, "items": [{"on": 1, "x": 1}, {"on": 0, "x": 0}, {"on": 1, "x": -3}], "s": {"a": 1, "b": -6, "flag": 1}}, "expected": 1, "expr": "s.a % 3"}
+{"env": {"ev": {"q": 3, "who": "carol"}, "items": [], "s": {"a": -4, "b": 9, "flag": 1}}, "expected": 0, "expr": "s.a % 4"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 1, "x": -3}, {"on": 0, "x": -4}, {"on": 1, "x": 0}], "s": {"a": -3, "b": 4, "flag": 1}}, "expected": 0, "expr": "s.a % 3"}
+{"env": {"ev": {"q": -3, "who": "bob"}, "items": [], "s": {"a": -2, "b": 0, "flag": 0}}, "expected": 5, "expr": "s.a % 7"}
+{"env": {"ev": {"q": 4, "who": "carol"}, "items": [{"on": 1, "x": -3}, {"on": 1, "x": 6}, {"on": 0, "x": -2}, {"on": 0, "x": -9}], "s": {"a": 6, "b": -7, "flag": 1}}, "expected": 0, "expr": "s.a % 2"}
+{"env": {"ev": {"q": -8, "who": "carol"}, "items": [{"on": 1, "x": -6}], "s": {"a": -2, "b": -4, "flag": 1}}, "expected": 2, "expr": "s.a % 4"}
+{"env": {"ev": {"q": 5, "who": "carol"}, "items": [{"on": 1, "x": 4}, {"on": 1, "x": -4}, {"on": 1, "x": 5}, {"on": 1, "x": -2}], "s": {"a": 5, "b": 7, "flag": 1}}, "expected": -8, "expr": "-s.a + -3"}
+{"env": {"ev": {"q": -1, "who": "alice"}, "items": [], "s": {"a": 7, "b": 6, "flag": 0}}, "expected": 0, "expr": "-s.a + 7"}
+{"env": {"ev": {"q": 1, "who": "carol"}, "items": [], "s": {"a": -2, "b": -1, "flag": 1}}, "expected": 8, "expr": "-s.a + 6"}
+{"env": {"ev": {"q": -3, "who": "bob"}, "items": [{"on": 1, "x": 4}, {"on": 1, "x": 8}, {"on": 0, "x": 4}], "s": {"a": -2, "b": 3, "flag": 0}}, "expected": -1, "expr": "-s.a + -3"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 1, "x": -9}, {"on": 1, "x": 0}, {"on": 0, "x": 4}], "s": {"a": 4, "b": 3, "flag": 0}}, "expected": -6, "expr": "-s.a + -2"}
+{"env": {"ev": {"q": -9, "who": "alice"}, "items": [{"on": 0, "x": 3}, {"on": 0, "x": 5}], "s": {"a": -1, "b": 4, "flag": 1}}, "expected": 3, "expr": "-s.a + 2"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [{"on": 1, "x": -5}, {"on": 0, "x": -4}, {"on": 1, "x": -1}], "s": {"a": -9, "b": 3, "flag": 0}}, "expected": 13, "expr": "-s.a + 4"}
+{"env": {"ev": {"q": 3, "who": "alice"}, "items": [{"on": 0, "x": -1}, {"on": 0, "x": 6}, {"on": 0, "x": 8}], "s": {"a": 5, "b": 1, "flag": 1}}, "expected": -5, "expr": "-s.a + 0"}
+{"env": {"ev": {"q": -2, "who": "bob"}, "items": [], "s": {"a": -7, "b": -8, "flag": 0}}, "expected": 7, "expr": "-s.a + 0"}
+{"env": {"ev": {"q": -6, "who": "carol"}, "items": [{"on": 1, "x": 5}], "s": {"a": -2, "b": -5, "flag": 1}}, "expected": 6, "expr": "-s.a + 4"}
+{"env": {"ev": {"q": 0, "who": "bob"}, "items": [{"on": 1, "x": -9}, {"on": 1, "x": 9}, {"on": 0, "x": 3}, {"on": 0, "x": -7}], "s": {"a": -4, "b": -6, "flag": 0}}, "expected": 11, "expr": "-s.a + 7"}
+{"env": {"ev": {"q": 2, "who": "carol"}, "items": [{"on": 0, "x": 2}, {"on": 1, "x": 7}, {"on": 1, "x": -9}], "s": {"a": 0, "b": -6, "flag": 0}}, "expected": -4, "expr": "-s.a + -4"}
+{"env": {"ev": {"q": 5, "who": "carol"}, "items": [{"on": 0, "x": 4}], "s": {"a": -6, "b": 4, "flag": 1}}, "expected": -6, "expr": "min(s.a, s.b, 8)"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 1, "x": -1}, {"on": 0, "x": -2}, {"on": 1, "x": -1}, {"on": 1, "x": -2}], "s": {"a": -1, "b": 8, "flag": 1}}, "expected": -1, "expr": "min(s.a, s.b, 6)"}
+{"env": {"ev": {"q": 6, "who": "alice"}, "items": [{"on": 0, "x": 6}], "s": {"a": 3, "b": 1, "flag": 0}}, "expected": 1, "expr": "min(s.a, s.b, 4)"}
+{"env": {"ev": {"q": -1, "who": "carol"}, "items": [], "s": {"a": -1, "b": 1, "flag": 1}}, "expected": -1, "expr": "min(s.a, s.b, 0)"}
+{"env": {"ev": {"q": 6, "who": "carol"}, "items": [{"on": 1, "x": 6}], "s": {"a": -7, "b": -2, "flag": 1}}, "expected": -7, "expr": "min(s.a, s.b, 3)"}
+{"env": {"ev": {"q": -2, "who": "alice"}, "items": [{"on": 1, "x": 0}], "s": {"a": -9, "b": -7, "flag": 1}}, "expected": -9, "expr": "min(s.a, s.b, 2)"}
+{"env": {"ev": {"q": 8, "who": "alice"}, "items": [{"on": 1, "x": 5}, {"on": 1, "x": 0}], "s": {"a": 7, "b": 2, "flag": 1}}, "expected": 2, "expr": "min(s.a, s.b, 2)"}
+{"env": {"ev": {"q": 8, "who": "carol"}, "items": [{"on": 0, "x": -3}], "s": {"a": -3, "b": 1, "flag": 0}}, "expected": -3, "expr": "min(s.a, s.b, -2)"}
+{"env": {"ev": {"q": -6, "who": "bob"}, "items": [{"on": 1, "x": -2}, {"on": 1, "x": -4}], "s": {"a": -1, "b": 9, "flag": 1}}, "expected": -1, "expr": "min(s.a, s.b, 6)"}
+{"env": {"ev": {"q": -8, "who": "bob"}, "items": [{"on": 0, "x": 0}, {"on": 0, "x": 6}, {"on": 1, "x": -9}, {"on": 1, "x": 6}], "s": {"a": 8, "b": -5, "flag": 1}}, "expected": -5, "expr": "min(s.a, s.b, -5)"}
+{"env": {"ev": {"q": 6, "who": "bob"}, "items": [], "s": {"a": -4, "b": -8, "flag": 1}}, "expected": -8, "expr": "min(s.a, s.b, 2)"}
+{"env": {"ev": {"q": -5, "who": "bob"}, "items": [{"on": 0, "x": 0}, {"on": 0, "x": -2}, {"on": 1, "x": 8}, {"on": 1, "x": -2}], "s": {"a": -7, "b": 9, "flag": 0}}, "expected": -7, "expr": "min(s.a, s.b, 1)"}
+{"env": {"ev": {"q": 0, "who": "carol"}, "items": [{"on": 0, "x": -8}, {"on": 0, "x": -3}, {"on": 0, "x": -1}, {"on": 0, "x": -4}], "s": {"a": 0, "b": 9, "flag": 1}}, "expected": 0, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 4, "who": "alice"}, "items": [{"on": 1, "x": 6}, {"on": 0, "x": -8}, {"on": 1, "x": 0}, {"on": 0, "x": 5}], "s": {"a": -7, "b": -4, "flag": 0}}, "expected": 4, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 4, "who": "bob"}, "items": [{"on": 0, "x": -2}, {"on": 0, "x": -1}, {"on": 0, "x": -7}, {"on": 1, "x": -4}], "s": {"a": -1, "b": 9, "flag": 0}}, "expected": 4, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": -6, "who": "alice"}, "items": [{"on": 1, "x": 3}, {"on": 1, "x": 7}], "s": {"a": 9, "b": 0, "flag": 1}}, "expected": 9, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": -1, "who": "bob"}, "items": [], "s": {"a": -8, "b": 4, "flag": 1}}, "expected": -1, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": -1, "who": "carol"}, "items": [], "s": {"a": 9, "b": 9, "flag": 0}}, "expected": 9, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": -1, "who": "bob"}, "items": [{"on": 1, "x": 4}, {"on": 1, "x": -7}, {"on": 1, "x": 2}, {"on": 1, "x": 1}], "s": {"a": -4, "b": 6, "flag": 1}}, "expected": -1, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 6, "who": "alice"}, "items": [{"on": 0, "x": 8}, {"on": 0, "x": 5}, {"on": 1, "x": 1}], "s": {"a": -4, "b": 1, "flag": 1}}, "expected": 6, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 8, "who": "alice"}, "items": [{"on": 0, "x": -8}, {"on": 1, "x": 7}, {"on": 1, "x": 6}], "s": {"a": 3, "b": 7, "flag": 0}}, "expected": 8, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 0, "who": "alice"}, "items": [{"on": 0, "x": -6}, {"on": 0, "x": -2}, {"on": 0, "x": 0}], "s": {"a": -3, "b": -1, "flag": 0}}, "expected": 0, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 5, "who": "bob"}, "items": [{"on": 1, "x": 6}], "s": {"a": -7, "b": -2, "flag": 0}}, "expected": 5, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 6, "who": "bob"}, "items": [{"on": 0, "x": 8}, {"on": 0, "x": 3}, {"on": 0, "x": 7}], "s": {"a": -1, "b": 4, "flag": 1}}, "expected": 6, "expr": "max(s.a, ev.q)"}
+{"env": {"ev": {"q": 7, "who": "alice"}, "items": [], "s": {"a": -1, "b": 4, "flag": 1}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": -5, "who": "alice"}, "items": [{"on": 1, "x": 6}, {"on": 1, "x": 1}, {"on": 1, "x": 5}, {"on": 0, "x": -3}], "s": {"a": 0, "b": 9, "flag": 1}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": 1, "who": "carol"}, "items": [{"on": 1, "x": 3}, {"on": 1, "x": -5}, {"on": 0, "x": -8}], "s": {"a": -2, "b": 4, "flag": 0}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": -6, "who": "carol"}, "items": [{"on": 0, "x": -9}, {"on": 0, "x": 4}, {"on": 1, "x": -7}], "s": {"a": 1, "b": -6, "flag": 1}}, "expected": true, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": 1, "who": "carol"}, "items": [{"on": 1, "x": 3}, {"on": 0, "x": 6}, {"on": 0, "x": -7}, {"on": 0, "x": 0}], "s": {"a": 1, "b": 3, "flag": 0}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": 5, "who": "bob"}, "items": [{"on": 0, "x": -9}, {"on": 0, "x": 1}], "s": {"a": 4, "b": -6, "flag": 0}}, "expected": true, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": -2, "who": "carol"}, "items": [{"on": 0, "x": 9}, {"on": 0, "x": -4}, {"on": 1, "x": -7}], "s": {"a": 2, "b": 4, "flag": 0}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": -2, "who": "alice"}, "items": [{"on": 1, "x": 5}, {"on": 1, "x": -9}], "s": {"a": -2, "b": 6, "flag": 0}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 1, "x": 0}, {"on": 1, "x": -1}, {"on": 0, "x": 0}, {"on": 1, "x": 3}], "s": {"a": 8, "b": -4, "flag": 0}}, "expected": true, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 1, "x": -9}, {"on": 0, "x": -1}], "s": {"a": 3, "b": 9, "flag": 1}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": -2, "who": "carol"}, "items": [{"on": 0, "x": -2}, {"on": 0, "x": -1}], "s": {"a": -8, "b": 6, "flag": 1}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": -8, "who": "carol"}, "items": [{"on": 0, "x": -5}, {"on": 1, "x": 0}], "s": {"a": -8, "b": 0, "flag": 1}}, "expected": false, "expr": "s.a >= s.b"}
+{"env": {"ev": {"q": 8, "who": "alice"}, "items": [{"on": 1, "x": 7}, {"on": 1, "x": -4}, {"on": 1, "x": 6}, {"on": 0, "x": 1}], "s": {"a": -4, "b": -3, "flag": 0}}, "expected": false, "expr": "s.a == 6"}
+{"env": {"ev": {"q": 8, "who": "alice"}, "items": [], "s": {"a": -5, "b": -2, "flag": 1}}, "expected": false, "expr": "s.a == 2"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 1, "x": 9}, {"on": 0, "x": 2}], "s": {"a": -9, "b": -1, "flag": 0}}, "expected": false, "expr": "s.a == 7"}
+{"env": {"ev": {"q": -2, "who": "carol"}, "items": [], "s": {"a": 6, "b": -9, "flag": 1}}, "expected": false, "expr": "s.a == 5"}
+{"env": {"ev": {"q": -6, "who": "bob"}, "items": [], "s": {"a": 5, "b": 0, "flag": 1}}, "expected": true, "expr": "s.a == 5"}
+{"env": {"ev": {"q": -2, "who": "carol"}, "items": [{"on": 1, "x": 3}], "s": {"a": 6, "b": -6, "flag": 0}}, "expected": false, "expr": "s.a == -5"}
+{"env": {"ev": {"q": 4, "who": "carol"}, "items": [], "s": {"a": 8, "b": 4, "flag": 0}}, "expected": false, "expr": "s.a == 0"}
+{"env": {"ev": {"q": 2, "who": "bob"}, "items": [{"on": 0, "x": 5}, {"on": 0, "x": 2}, {"on": 1, "x": 2}], "s": {"a": 4, "b": -1, "flag": 0}}, "expected": false, "expr": "s.a == 8"}
+{"env": {"ev": {"q": 5, "who": "bob"}, "items": [{"on": 0, "x": -9}], "s": {"a": -1, "b": -3, "flag": 0}}, "expected": false, "expr": "s.a == -5"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [{"on": 0, "x": 9}], "s": {"a": -2, "b": -5, "flag": 0}}, "expected": false, "expr": "s.a == 7"}
+{"env": {"ev": {"q": -9, "who": "alice"}, "items": [{"on": 1, "x": -5}], "s": {"a": -2, "b": 1, "flag": 0}}, "expected": false, "expr": "s.a == 8"}
+{"env": {"ev": {"q": -9, "who": "alice"}, "items": [{"on": 1, "x": 9}], "s": {"a": -6, "b": -9, "flag": 0}}, "expected": false, "expr": "s.a == 7"}
+{"env": {"ev": {"q": 4, "who": "carol"}, "items": [], "s": {"a": -1, "b": -8, "flag": 0}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": 7, "who": "carol"}, "items": [], "s": {"a": 6, "b": 5, "flag": 1}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": 5, "who": "carol"}, "items": [], "s": {"a": -2, "b": -8, "flag": 1}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": 6, "who": "carol"}, "items": [{"on": 0, "x": -7}, {"on": 0, "x": 1}, {"on": 0, "x": -7}], "s": {"a": 3, "b": 4, "flag": 0}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": 3, "who": "carol"}, "items": [{"on": 1, "x": 0}, {"on": 1, "x": 7}, {"on": 0, "x": -6}, {"on": 0, "x": 8}], "s": {"a": 9, "b": 8, "flag": 1}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 1, "x": -6}, {"on": 1, "x": 4}, {"on": 1, "x": -1}], "s": {"a": -2, "b": 4, "flag": 1}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": -7, "who": "bob"}, "items": [{"on": 1, "x": -6}, {"on": 0, "x": -5}, {"on": 1, "x": 9}], "s": {"a": 6, "b": -7, "flag": 0}}, "expected": true, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": -8, "who": "alice"}, "items": [{"on": 1, "x": 0}, {"on": 0, "x": -6}, {"on": 1, "x": -5}, {"on": 0, "x": -2}], "s": {"a": 4, "b": 2, "flag": 1}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": -1, "who": "carol"}, "items": [{"on": 0, "x": 4}], "s": {"a": 8, "b": 2, "flag": 0}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": -1, "who": "carol"}, "items": [{"on": 1, "x": 1}, {"on": 0, "x": -9}], "s": {"a": -1, "b": -9, "flag": 0}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": -5, "who": "carol"}, "items": [], "s": {"a": 9, "b": 3, "flag": 0}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": 4, "who": "alice"}, "items": [{"on": 1, "x": -4}, {"on": 1, "x": 0}], "s": {"a": 7, "b": -3, "flag": 1}}, "expected": false, "expr": "ev.who == 'bob'"}
+{"env": {"ev": {"q": -4, "who": "carol"}, "items": [], "s": {"a": -7, "b": -8, "flag": 0}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 6, "who": "carol"}, "items": [{"on": 1, "x": 4}, {"on": 0, "x": -3}, {"on": 1, "x": 2}], "s": {"a": -1, "b": 5, "flag": 1}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": -8, "who": "bob"}, "items": [{"on": 0, "x": -8}, {"on": 1, "x": -3}, {"on": 0, "x": -3}], "s": {"a": 9, "b": 6, "flag": 1}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": -9, "who": "alice"}, "items": [{"on": 0, "x": -4}, {"on": 0, "x": 3}, {"on": 1, "x": 7}], "s": {"a": 0, "b": 1, "flag": 0}}, "expected": false, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 5, "who": "bob"}, "items": [{"on": 1, "x": 9}, {"on": 1, "x": 9}], "s": {"a": -8, "b": 4, "flag": 0}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 3, "who": "bob"}, "items": [{"on": 1, "x": -4}, {"on": 0, "x": 2}], "s": {"a": 4, "b": 0, "flag": 0}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 1, "x": -7}, {"on": 1, "x": 0}, {"on": 1, "x": -2}, {"on": 0, "x": -4}], "s": {"a": -6, "b": -2, "flag": 1}}, "expected": false, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 2, "who": "alice"}, "items": [{"on": 0, "x": -2}], "s": {"a": -6, "b": 7, "flag": 0}}, "expected": false, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": -7, "who": "bob"}, "items": [{"on": 1, "x": 5}, {"on": 1, "x": 9}, {"on": 0, "x": 1}], "s": {"a": -3, "b": -4, "flag": 0}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": -1, "who": "carol"}, "items": [], "s": {"a": 6, "b": 5, "flag": 1}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 5, "who": "bob"}, "items": [], "s": {"a": -7, "b": 0, "flag": 1}}, "expected": true, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 7, "who": "alice"}, "items": [{"on": 0, "x": 9}, {"on": 0, "x": 5}, {"on": 1, "x": 1}], "s": {"a": 0, "b": -7, "flag": 0}}, "expected": false, "expr": "ev.who != 'alice'"}
+{"env": {"ev": {"q": 1, "who": "carol"}, "items": [], "s": {"a": -8, "b": 5, "flag": 0}}, "expected": false, "expr": "s.a > 3 and s.b < 3"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 0, "x": 7}, {"on": 1, "x": 2}, {"on": 1, "x": 0}, {"on": 1, "x": 4}], "s": {"a": -4, "b": -8, "flag": 0}}, "expected": false, "expr": "s.a > 3 and s.b < 3"}
+{"env": {"ev": {"q": 1, "who": "bob"}, "items": [{"on": 1, "x": 3}, {"on": 0, "x": -1}, {"on": 0, "x": 1}, {"on": 0, "x": 9}], "s": {"a": -8, "b": 1, "flag": 0}}, "expected": false, "expr": "s.a > 5 and s.b < 5"}
+{"env": {"ev": {"q": -7, "who": "alice"}, "items": [{"on": 1, "x": 3}, {"on": 0, "x": -5}, {"on": 1, "x": 4}, {"on": 1, "x": -9}], "s": {"a": 0, "b": 3, "flag": 0}}, "expected": false, "expr": "s.a > 9 and s.b < 9"}
+{"env": {"ev": {"q": -3, "who": "bob"}, "items": [{"on": 0, "x": -5}], "s": {"a": -3, "b": 1, "flag": 1}}, "expected": false, "expr": "s.a > -1 and s.b < -1"}
+{"env": {"ev": {"q": 1, "who": "carol"}, "items": [{"on": 0, "x": 3}], "s": {"a": -6, "b": 7, "flag": 0}}, "expected": false, "expr": "s.a > -1 and s.b < -1"}
+{"env": {"ev": {"q": 4, "who": "alice"}, "items": [{"on": 1, "x": 5}], "s": {"a": -4, "b": 5, "flag": 0}}, "expected": false, "expr": "s.a > -3 and s.b < -3"}
+{"env": {"ev": {"q": 0, "who": "alice"}, "items": [{"on": 1, "x": 2}], "s": {"a": 5, "b": -2, "flag": 0}}, "expected": false, "expr": "s.a > 7 and s.b < 7"}
+{"env": {"ev": {"q": -4, "who": "bob"}, "items": [{"on": 1, "x": -5}, {"on": 1, "x": -8}, {"on": 0, "x": 2}, {"on": 0, "x": 7}], "s": {"a": 0, "b": 3, "flag": 1}}, "expected": false, "expr": "s.a > 2 and s.b < 2"}
+{"env": {"ev": {"q": 7, "who": "bob"}, "items": [{"on": 0, "x": -7}, {"on": 1, "x": 5}, {"on": 1, "x": -9}], "s": {"a": -4, "b": -1, "flag": 1}}, "expected": false, "expr": "s.a > -1 and s.b < -1"}
+{"env": {"ev": {"q": 3, "who": "bob"}, "items": [{"on": 0, "x": -2}, {"on": 0, "x": 1}], "s": {"a": 7, "b": 2, "flag": 0}}, "expected": false, "expr": "s.a > -5 and s.b < -5"}
+{"env": {"ev": {"q": -8, "who": "alice"}, "items": [{"on": 1, "x": -5}, {"on": 0, "x": 5}, {"on": 0, "x": -7}], "s": {"a": 1, "b": -5, "flag": 0}}, "expected": false, "expr": "s.a > 8 and s.b < 8"}
+{"env": {"ev": {"q": -6, "who": "alice"}, "items": [{"on": 0, "x": 0}], "s": {"a": -5, "b": 8, "flag": 1}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": -6, "who": "alice"}, "items": [{"on": 0, "x": 8}, {"on": 0, "x": 7}, {"on": 1, "x": -5}, {"on": 0, "x": 4}], "s": {"a": 4, "b": 5, "flag": 0}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": -4, "who": "carol"}, "items": [], "s": {"a": -2, "b": 9, "flag": 1}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": 3, "who": "alice"}, "items": [], "s": {"a": -7, "b": 7, "flag": 0}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": 2, "who": "bob"}, "items": [{"on": 0, "x": -2}, {"on": 1, "x": 9}], "s": {"a": 2, "b": -1, "flag": 0}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": -4, "who": "carol"}, "items": [{"on": 0, "x": 6}, {"on": 0, "x": -5}, {"on": 0, "x": 5}], "s": {"a": 2, "b": 8, "flag": 1}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": 1, "who": "alice"}, "items": [{"on": 1, "x": 3}, {"on": 0, "x": -1}, {"on": 1, "x": -3}, {"on": 0, "x": 2}], "s": {"a": -8, "b": -3, "flag": 0}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": 2, "who": "alice"}, "items": [{"on": 1, "x": 5}, {"on": 0, "x": 1}, {"on": 1, "x": 6}], "s": {"a": 1, "b": -1, "flag": 0}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": 4, "who": "bob"}, "items": [{"on": 1, "x": -4}, {"on": 0, "x": 1}, {"on": 1, "x": -7}], "s": {"a": 7, "b": -1, "flag": 0}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": -4, "who": "carol"}, "items": [{"on": 1, "x": 2}, {"on": 1, "x": -8}, {"on": 1, "x": 4}], "s": {"a": 0, "b": 5, "flag": 1}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": 2, "who": "carol"}, "items": [{"on": 0, "x": -9}], "s": {"a": -8, "b": -7, "flag": 1}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": -7, "who": "bob"}, "items": [{"on": 1, "x": 2}, {"on": 0, "x": 9}], "s": {"a": 5, "b": -8, "flag": 0}}, "expected": true, "expr": "not (s.a == s.b) or s.flag == 1"}
+{"env": {"ev": {"q": 5, "who": "bob"}, "items": [{"on": 1, "x": -5}, {"on": 1, "x": 3}, {"on": 0, "x": -1}, {"on": 0, "x": -6}], "s": {"a": 5, "b": 2, "flag": 1}}, "expected": -9, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": 8, "who": "bob"}, "items": [{"on": 1, "x": -1}, {"on": 1, "x": -3}], "s": {"a": 6, "b": 7, "flag": 1}}, "expected": -4, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": -7, "who": "alice"}, "items": [{"on": 0, "x": 5}], "s": {"a": -3, "b": -6, "flag": 0}}, "expected": 5, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": 8, "who": "carol"}, "items": [{"on": 0, "x": 0}, {"on": 1, "x": -4}], "s": {"a": 1, "b": 2, "flag": 0}}, "expected": -4, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": -2, "who": "alice"}, "items": [], "s": {"a": -6, "b": -3, "flag": 0}}, "expected": 0, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": 8, "who": "bob"}, "items": [{"on": 0, "x": -7}, {"on": 1, "x": 0}, {"on": 1, "x": 6}, {"on": 0, "x": 4}], "s": {"a": 9, "b": 2, "flag": 1}}, "expected": 3, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": 7, "who": "alice"}, "items": [{"on": 0, "x": 8}], "s": {"a": -7, "b": 5, "flag": 1}}, "expected": 8, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": -6, "who": "carol"}, "items": [{"on": 0, "x": 0}], "s": {"a": 4, "b": 7, "flag": 0}}, "expected": 0, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": -7, "who": "alice"}, "items": [{"on": 1, "x": 8}], "s": {"a": -2, "b": 2, "flag": 1}}, "expected": 8, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": 7, "who": "carol"}, "items": [{"on": 0, "x": 9}], "s": {"a": 0, "b": 8, "flag": 0}}, "expected": 9, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": -9, "who": "bob"}, "items": [], "s": {"a": 1, "b": 9, "flag": 0}}, "expected": 0, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 1, "x": -9}, {"on": 1, "x": 8}, {"on": 1, "x": 0}, {"on": 1, "x": -2}], "s": {"a": 9, "b": -1, "flag": 0}}, "expected": -3, "expr": "sum(i.x for i in items)"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 0, "x": 5}, {"on": 0, "x": 1}, {"on": 1, "x": 1}], "s": {"a": -7, "b": -8, "flag": 0}}, "expected": 1, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 2, "who": "carol"}, "items": [{"on": 1, "x": -6}, {"on": 1, "x": -2}, {"on": 1, "x": -6}, {"on": 0, "x": 5}], "s": {"a": 2, "b": 3, "flag": 0}}, "expected": -14, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 4, "who": "bob"}, "items": [{"on": 1, "x": 1}], "s": {"a": -8, "b": 0, "flag": 1}}, "expected": 1, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 6, "who": "alice"}, "items": [{"on": 0, "x": -9}, {"on": 1, "x": 3}, {"on": 0, "x": -2}], "s": {"a": -4, "b": 6, "flag": 1}}, "expected": 3, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 6, "who": "carol"}, "items": [{"on": 0, "x": 0}, {"on": 1, "x": -6}, {"on": 1, "x": -5}], "s": {"a": -8, "b": -8, "flag": 1}}, "expected": -11, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 3, "who": "bob"}, "items": [{"on": 0, "x": 8}, {"on": 1, "x": 2}, {"on": 1, "x": -7}, {"on": 1, "x": 7}], "s": {"a": 3, "b": 2, "flag": 0}}, "expected": 2, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": -6, "who": "alice"}, "items": [{"on": 1, "x": 1}, {"on": 0, "x": -5}], "s": {"a": -1, "b": -6, "flag": 0}}, "expected": 1, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": -8, "who": "bob"}, "items": [{"on": 1, "x": 1}], "s": {"a": 3, "b": 7, "flag": 0}}, "expected": 1, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 1, "who": "carol"}, "items": [{"on": 1, "x": -4}, {"on": 1, "x": 0}], "s": {"a": -5, "b": 7, "flag": 0}}, "expected": -4, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 1, "x": -9}, {"on": 0, "x": 1}, {"on": 1, "x": 4}], "s": {"a": 7, "b": 8, "flag": 1}}, "expected": -5, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": 9, "who": "carol"}, "items": [{"on": 1, "x": -8}], "s": {"a": -9, "b": 6, "flag": 1}}, "expected": -8, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": -8, "who": "carol"}, "items": [], "s": {"a": 3, "b": -5, "flag": 0}}, "expected": 0, "expr": "sum(i.x for i in items if i.on == 1)"}
+{"env": {"ev": {"q": -5, "who": "alice"}, "items": [{"on": 1, "x": 4}], "s": {"a": 5, "b": 1, "flag": 1}}, "expected": true, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": 8, "who": "alice"}, "items": [{"on": 1, "x": 7}, {"on": 0, "x": 1}, {"on": 1, "x": 5}], "s": {"a": -8, "b": -5, "flag": 0}}, "expected": true, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": -2, "who": "alice"}, "items": [{"on": 0, "x": 0}, {"on": 1, "x": 0}, {"on": 1, "x": -3}, {"on": 1, "x": 1}], "s": {"a": -1, "b": 6, "flag": 0}}, "expected": false, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": 9, "who": "carol"}, "items": [{"on": 1, "x": 3}, {"on": 0, "x": 2}, {"on": 0, "x": 0}, {"on": 0, "x": 0}], "s": {"a": -1, "b": 0, "flag": 0}}, "expected": true, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": -3, "who": "carol"}, "items": [{"on": 1, "x": 8}, {"on": 0, "x": -5}], "s": {"a": -1, "b": 6, "flag": 0}}, "expected": false, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": -8, "who": "carol"}, "items": [{"on": 0, "x": -2}, {"on": 0, "x": -8}, {"on": 1, "x": 4}, {"on": 0, "x": 6}], "s": {"a": 9, "b": -2, "flag": 0}}, "expected": false, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": 4, "who": "carol"}, "items": [{"on": 0, "x": 6}, {"on": 1, "x": 0}, {"on": 0, "x": 0}], "s": {"a": -5, "b": -9, "flag": 0}}, "expected": true, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": 8, "who": "carol"}, "items": [], "s": {"a": -7, "b": 9, "flag": 0}}, "expected": true, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": 3, "who": "alice"}, "items": [{"on": 0, "x": 0}], "s": {"a": 4, "b": -4, "flag": 0}}, "expected": true, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": 0, "who": "alice"}, "items": [{"on": 1, "x": 7}, {"on": 1, "x": -5}, {"on": 0, "x": -1}, {"on": 1, "x": -6}], "s": {"a": 9, "b": -6, "flag": 1}}, "expected": false, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": -9, "who": "carol"}, "items": [{"on": 0, "x": 0}, {"on": 1, "x": -4}], "s": {"a": 5, "b": -1, "flag": 0}}, "expected": false, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": 3, "who": "carol"}, "items": [], "s": {"a": 7, "b": 1, "flag": 0}}, "expected": true, "expr": "all(i.x >= 0 for i in items)"}
+{"env": {"ev": {"q": -9, "who": "alice"}, "items": [{"on": 1, "x": -2}, {"on": 1, "x": -1}, {"on": 0, "x": 0}], "s": {"a": 6, "b": 1, "flag": 0}}, "expected": true, "expr": "any(i.x > -3 for i in items)"}
+{"env": {"ev": {"q": -6, "who": "alice"}, "items": [{"on": 1, "x": -4}, {"on": 1, "x": 7}], "s": {"a": 2, "b": -2, "flag": 0}}, "expected": true, "expr": "any(i.x > -1 for i in items)"}
+{"env": {"ev": {"q": -2, "who": "bob"}, "items": [{"on": 1, "x": -5}, {"on": 1, "x": 2}, {"on": 1, "x": 8}], "s": {"a": 0, "b": 2, "flag": 0}}, "expected": true, "expr": "any(i.x > 6 for i in items)"}
+{"env": {"ev": {"q": 7, "who": "alice"}, "items": [{"on": 0, "x": 2}, {"on": 0, "x": 9}, {"on": 0, "x": -8}, {"on": 0, "x": 9}], "s": {"a": -3, "b": -2, "flag": 0}}, "expected": true, "expr": "any(i.x > 7 for i in items)"}
+{"env": {"ev": {"q": -3, "who": "carol"}, "items": [{"on": 0, "x": 6}, {"on": 1, "x": 7}, {"on": 1, "x": -8}, {"on": 1, "x": -5}], "s": {"a": 7, "b": 5, "flag": 0}}, "expected": true, "expr": "any(i.x > -3 for i in items)"}
+{"env": {"ev": {"q": 0, "who": "carol"}, "items": [], "s": {"a": -8, "b": 8, "flag": 1}}, "expected": false, "expr": "any(i.x > 2 for i in items)"}
+{"env": {"ev": {"q": -8, "who": "alice"}, "items": [{"on": 0, "x": -7}, {"on": 1, "x": -7}], "s": {"a": -9, "b": -3, "flag": 0}}, "expected": false, "expr": "any(i.x > 1 for i in items)"}
+{"env": {"ev": {"q": 4, "who": "alice"}, "items": [{"on": 1, "x": 5}, {"on": 0, "x": 3}, {"on": 0, "x": 8}], "s": {"a": 4, "b": -4, "flag": 0}}, "expected": true, "expr": "any(i.x > -5 for i in items)"}
+{"env": {"ev": {"q": 8, "who": "alice"}, "items": [{"on": 0, "x": -5}, {"on": 0, "x": -9}, {"on": 1, "x": 0}, {"on": 1, "x": 8}], "s": {"a": 2, "b": -6, "flag": 0}}, "expected": true, "expr": "any(i.x > 5 for i in items)"}
+{"env": {"ev": {"q": 2, "who": "bob"}, "items": [{"on": 0, "x": -3}, {"on": 1, "x": -8}], "s": {"a": -2, "b": -2, "flag": 1}}, "expected": false, "expr": "any(i.x > 3 for i in items)"}
+{"env": {"ev": {"q": -7, "who": "bob"}, "items": [{"on": 1, "x": -8}, {"on": 0, "x": -8}, {"on": 1, "x": -8}, {"on": 0, "x": 5}], "s": {"a": -9, "b": -2, "flag": 0}}, "expected": true, "expr": "any(i.x > 4 for i in items)"}
+{"env": {"ev": {"q": -2, "who": "carol"}, "items": [{"on": 1, "x": 1}, {"on": 1, "x": -2}, {"on": 0, "x": -5}, {"on": 1, "x": 4}], "s": {"a": -8, "b": -5, "flag": 1}}, "expected": true, "expr": "any(i.x > 3 for i in items)"}
+{"env": {"ev": {"q": 4, "who": "carol"}, "items": [{"on": 1, "x": -8}, {"on": 1, "x": 3}, {"on": 1, "x": 4}], "s": {"a": 8, "b": 9, "flag": 0}}, "expected": 3, "expr": "len(items)"}
+{"env": {"ev": {"q": -2, "who": "bob"}, "items": [{"on": 1, "x": -5}, {"on": 1, "x": -8}], "s": {"a": 3, "b": -4, "flag": 1}}, "expected": 2, "expr": "len(items)"}
+{"env": {"ev": {"q": -2, "who": "alice"}, "items": [{"on": 0, "x": 1}], "s": {"a": 7, "b": -5, "flag": 1}}, "expected": 1, "expr": "len(items)"}
+{"env": {"ev": {"q": -8, "who": "alice"}, "items": [{"on": 0, "x": -8}, {"on": 0, "x": -3}, {"on": 0, "x": 6}], "s": {"a": 2, "b": -7, "flag": 0}}, "expected": 3, "expr": "len(items)"}
+{"env": {"ev": {"q": -3, "who": "carol"}, "items": [], "s": {"a": 0, "b": -9, "flag": 0}}, "expected": 0, "expr": "len(items)"}
+{"env": {"ev": {"q": 3, "who": "bob"}, "items": [{"on": 1, "x": 1}, {"on": 1, "x": 3}, {"on": 1, "x": 8}, {"on": 1, "x": 0}], "s": {"a": 6, "b": -2, "flag": 0}}, "expected": 4, "expr": "len(items)"}
+{"env": {"ev": {"q": 6, "who": "alice"}, "items": [{"on": 1, "x": 2}], "s": {"a": 6, "b": 5, "flag": 0}}, "expected": 1, "expr": "len(items)"}
+{"env": {"ev": {"q": -9, "who": "alice"}, "items": [{"on": 1, "x": 9}, {"on": 0, "x": 0}, {"on": 1, "x": -3}, {"on": 1, "x": -2}], "s": {"a": 9, "b": -2, "flag": 0}}, "expected": 4, "expr": "len(items)"}
+{"env": {"ev": {"q": -1, "who": "alice"}, "items": [{"on": 0, "x": 5}, {"on": 0, "x": 2}, {"on": 1, "x": -5}], "s": {"a": -2, "b": 6, "flag": 1}}, "expected": 3, "expr": "len(items)"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [], "s": {"a": -8, "b": 7, "flag": 0}}, "expected": 0, "expr": "len(items)"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [{"on": 0, "x": -9}], "s": {"a": 4, "b": -5, "flag": 0}}, "expected": 1, "expr": "len(items)"}
+{"env": {"ev": {"q": 6, "who": "bob"}, "items": [], "s": {"a": 2, "b": -8, "flag": 1}}, "expected": 0, "expr": "len(items)"}
+{"env": {"ev": {"q": 7, "who": "carol"}, "items": [{"on": 1, "x": 8}, {"on": 1, "x": -9}], "s": {"a": 4, "b": -9, "flag": 0}}, "expected": 3, "expr": "3 if s.a > s.b else -3"}
+{"env": {"ev": {"q": -2, "who": "bob"}, "items": [{"on": 1, "x": 7}, {"on": 1, "x": 2}, {"on": 0, "x": 3}, {"on": 1, "x": 2}], "s": {"a": -6, "b": -6, "flag": 0}}, "expected": -7, "expr": "7 if s.a > s.b else -7"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [], "s": {"a": -2, "b": -2, "flag": 1}}, "expected": -2, "expr": "2 if s.a > s.b else -2"}
+{"env": {"ev": {"q": -8, "who": "carol"}, "items": [], "s": {"a": 3, "b": 3, "flag": 1}}, "expected": 4, "expr": "-4 if s.a > s.b else --4"}
+{"env": {"ev": {"q": 1, "who": "carol"}, "items": [], "s": {"a": -7, "b": 6, "flag": 1}}, "expected": -6, "expr": "6 if s.a > s.b else -6"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 0, "x": -8}, {"on": 0, "x": -1}], "s": {"a": -8, "b": -2, "flag": 0}}, "expected": -9, "expr": "9 if s.a > s.b else -9"}
+{"env": {"ev": {"q": 9, "who": "bob"}, "items": [{"on": 1, "x": -7}, {"on": 0, "x": -4}, {"on": 1, "x": 9}], "s": {"a": 1, "b": -9, "flag": 0}}, "expected": -3, "expr": "-3 if s.a > s.b else --3"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [{"on": 0, "x": -8}, {"on": 0, "x": 4}], "s": {"a": 1, "b": 3, "flag": 0}}, "expected": -5, "expr": "5 if s.a > s.b else -5"}
+{"env": {"ev": {"q": -9, "who": "carol"}, "items": [{"on": 1, "x": 5}, {"on": 1, "x": -2}], "s": {"a": 1, "b": 3, "flag": 1}}, "expected": -8, "expr": "8 if s.a > s.b else -8"}
+{"env": {"ev": {"q": -7, "who": "carol"}, "items": [{"on": 0, "x": -2}, {"on": 1, "x": -7}], "s": {"a": 4, "b": -4, "flag": 1}}, "expected": 3, "expr": "3 if s.a > s.b else -3"}
+{"env": {"ev": {"q": 2, "who": "bob"}, "items": [], "s": {"a": -5, "b": 3, "flag": 1}}, "expected": 3, "expr": "-3 if s.a > s.b else --3"}
+{"env": {"ev": {"q": -6, "who": "bob"}, "items": [], "s": {"a": 5, "b": 2, "flag": 1}}, "expected": -5, "expr": "-5 if s.a > s.b else --5"}
+{"env": {"ev": {"q": -6, "who": "bob"}, "items": [], "s": {"a": 5, "b": 8, "flag": 1}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": -9, "who": "alice"}, "items": [{"on": 0, "x": 3}, {"on": 0, "x": 8}, {"on": 0, "x": 9}], "s": {"a": -7, "b": 1, "flag": 1}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 0, "who": "alice"}, "items": [{"on": 0, "x": -5}, {"on": 1, "x": -4}, {"on": 1, "x": -1}], "s": {"a": -4, "b": -5, "flag": 1}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": -2, "who": "carol"}, "items": [{"on": 1, "x": -3}, {"on": 0, "x": -6}, {"on": 0, "x": 0}], "s": {"a": -7, "b": 2, "flag": 1}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 1, "who": "alice"}, "items": [{"on": 1, "x": -5}, {"on": 0, "x": 1}, {"on": 1, "x": 6}, {"on": 1, "x": -4}], "s": {"a": 3, "b": 1, "flag": 1}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 1, "who": "alice"}, "items": [{"on": 1, "x": 3}, {"on": 0, "x": -6}], "s": {"a": 6, "b": 9, "flag": 0}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 5, "who": "carol"}, "items": [{"on": 1, "x": 5}], "s": {"a": -4, "b": 8, "flag": 0}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": -5, "who": "carol"}, "items": [{"on": 1, "x": -2}, {"on": 1, "x": -5}], "s": {"a": -7, "b": 4, "flag": 1}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 9, "who": "alice"}, "items": [{"on": 1, "x": 7}, {"on": 0, "x": 8}, {"on": 0, "x": 2}, {"on": 0, "x": -6}], "s": {"a": -7, "b": 5, "flag": 1}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 9, "who": "carol"}, "items": [{"on": 1, "x": 1}, {"on": 0, "x": -6}, {"on": 1, "x": -6}], "s": {"a": 2, "b": -4, "flag": 0}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 5, "who": "alice"}, "items": [{"on": 0, "x": 5}, {"on": 0, "x": 2}, {"on": 0, "x": 6}], "s": {"a": 7, "b": 8, "flag": 0}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}
+{"env": {"ev": {"q": 2, "who": "alice"}, "items": [{"on": 0, "x": 5}, {"on": 1, "x": 7}], "s": {"a": -7, "b": -6, "flag": 0}}, "expected": false, "expr": "sum(i.x for i in items) == s.a + s.b"}

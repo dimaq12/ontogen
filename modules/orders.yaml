@@ -1,0 +1,55 @@
+# GENE orders: an order state machine (0 new -> 1 placed -> 2 paid -> 3 shipped
+# -> 4 delivered; 5 cancelled). DELIBERATELY FUZZY contract on cancel:
+# post doesn't say which phases a cancel is legal from — only the guard knows that
+# (a real project: "the contract stays silent, behavior decides" — the interview will expose it).
+onto: 1
+module: orders
+requires:
+  events:
+    OrderPlaced:    {order: str, qty: int, price: int}
+    OrderCancelled: {order: str}
+events:
+  OrderPaid:      {order: str}
+  OrderShipped:   {order: str, shipment: str}
+  OrderDelivered: {order: str}
+entities:
+  order:
+    key: order
+    state: {phase: int, qty: int, price: int, paid: int}
+    rules:
+      place:
+        when: OrderPlaced
+        guard: "s.phase == 0 and ev.qty > 0 and ev.price >= 0"
+        body: |
+          s.phase = 1
+          s.qty = ev.qty
+          s.price = ev.price
+        contract: {post: "s.phase >= 0 and s.phase <= 5"}
+      pay:
+        when: OrderPaid
+        guard: "s.phase == 1"
+        body: |
+          s.phase = 2
+          s.paid = 1
+        contract: {post: "s.phase >= 0 and s.phase <= 5 and s.paid >= 0"}
+      ship:
+        when: OrderShipped
+        guard: "s.phase == 2"
+        body: |
+          s.phase = 3
+        contract: {post: "s.phase >= 0 and s.phase <= 5"}
+      deliver:
+        when: OrderDelivered
+        guard: "s.phase == 3"
+        body: |
+          s.phase = 4
+        contract: {post: "s.phase >= 0 and s.phase <= 5"}
+      cancel:
+        when: OrderCancelled
+        guard: "s.phase >= 1 and s.phase <= 2"
+        body: |
+          s.phase = 5
+        contract: {post: "s.phase >= 0 and s.phase <= 5"}   # FUZZY: silent about paid
+queries:
+  open_orders: "sum(1 for o in order if o.phase >= 1 and o.phase <= 3)"
+  delivered_orders: "sum(1 for o in order if o.phase == 4)"

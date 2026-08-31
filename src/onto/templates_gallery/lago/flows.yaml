@@ -1,0 +1,59 @@
+# Lago-core judge: scenarios from the semantics of docs.getlago.com (lago/SPEC.md).
+# event ids = transaction_id (idempotency = dedup D26).
+flows:
+  subscription_lifecycle_and_usage:
+    - post:  {id: tx1, type: SubscriptionStarted, subscription: sub_ext_1, customer: carl}
+    - post:  {id: tx2, type: UsageApiCall, subscription: sub_ext_1}
+    - post:  {id: tx3, type: UsageApiCall, subscription: sub_ext_1}
+    - post:  {id: tx4, type: UsageStorage, subscription: sub_ext_1, value: 30}
+    - post:  {id: tx5, type: UsageConn, subscription: sub_ext_1, value: 5}
+    - post:  {id: tx6, type: UsageConn, subscription: sub_ext_1, value: 3}
+    - state: {entity: subscription, instance: sub_ext_1,
+              expect: {active: 1, period_calls: 2, period_storage: 30, period_conn_max: 5}}
+  transaction_id_idempotency:
+    - post:  {id: tx2, type: UsageApiCall, subscription: sub_ext_1}   # retry tx2
+    - state: {entity: subscription, instance: sub_ext_1, expect: {period_calls: 2}}
+  invoice_with_customer_wallet_saga:
+    # CUSTOMER wallet (Lago wallets): 30 credits * 100¢ = 3000¢
+    - post:  {id: tx7, type: WalletTopUp, customer: carl, credits: 30}
+    - state: {entity: customer, instance: carl, expect: {credits_cents: 3000}}
+    # closing: 5454; SAGA: close -> ApplyCredits -> wallet -> CreditsApplied
+    - post:  {id: tx8, type: BillingPeriodClosed, subscription: sub_ext_1, invoice_id: INV-1}
+    - state: {entity: subscription, instance: sub_ext_1,
+              expect: {last_invoice_total: 5454, last_invoice_due: 2454,
+                       invoiced_total: 2454, invoices: 1,
+                       period_calls: 0, period_storage: 0, period_conn_max: 0}}
+    - state: {entity: customer, instance: carl,
+              expect: {credits_cents: 0, applied_total: 3000}}
+    # INVOICE REGISTRY (Lago GET /invoices/:id): dynamic instance
+    - state: {entity: invoice, instance: INV-1,
+              expect: {total: 5454, due: 2454, credits_applied: 3000, finalized: 1}}
+  shared_wallet_across_subscriptions:
+    # a second subscription of the SAME customer shares the wallet
+    - post:  {id: tw1, type: WalletTopUp, customer: carl, credits: 50}
+    - post:  {id: tw2, type: SubscriptionStarted, subscription: sub_ext_3, customer: carl}
+    - post:  {id: tw3, type: UsageApiCall, subscription: sub_ext_3}
+    - post:  {id: tw4, type: BillingPeriodClosed, subscription: sub_ext_3, invoice_id: INV-2}
+    # 4902; credits 5000 -> due 0, remainder 98
+    - state: {entity: subscription, instance: sub_ext_3,
+              expect: {last_invoice_total: 4902, last_invoice_due: 0, invoiced_total: 0}}
+    - state: {entity: customer, instance: carl, expect: {credits_cents: 98}}
+    - state: {entity: invoice, instance: INV-2,
+              expect: {total: 4902, due: 0, credits_applied: 4902}}
+  second_period_fresh_counters:
+    - post:  {id: tx9, type: UsageApiCall, subscription: sub_ext_1}
+    - post:  {id: tx10, type: BillingPeriodClosed, subscription: sub_ext_1, invoice_id: INV-3}
+    # credits remaining 98 -> due 4902-98=4804
+    - state: {entity: subscription, instance: sub_ext_1,
+              expect: {last_invoice_total: 4902, last_invoice_due: 4804, invoices: 2}}
+    - state: {entity: customer, instance: carl, expect: {credits_cents: 0}}
+    - query: {name: invoices_due, expect: 7258}   # 2454 + 0 + 4804
+  dynamic_second_subscription:
+    - post:  {id: tx11, type: SubscriptionStarted, subscription: sub_ext_2, customer: dana}
+    - post:  {id: tx12, type: UsageApiCall, subscription: sub_ext_2}
+    - state: {entity: subscription, instance: sub_ext_2, expect: {active: 1, period_calls: 1}}
+    - query: {name: active_subscriptions, expect: 3}
+  terminated_stops_metering:
+    - post:  {id: tx13, type: SubscriptionTerminated, subscription: sub_ext_2}
+    - post:  {id: tx14, type: UsageApiCall, subscription: sub_ext_2}
+    - state: {entity: subscription, instance: sub_ext_2, expect: {active: 0, period_calls: 1}}

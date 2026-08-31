@@ -1,0 +1,26 @@
+# GENE rooms: rooms and booking events (exporter of BookingRequested/Cancelled).
+onto: 1
+module: rooms
+events:
+  BookingRequested: {room: str, resv: str, nights: int}
+  BookingCancelled: {room: str, resv: str}
+entities:
+  room:
+    key: room
+    state: {capacity: int, booked: int}
+    init:  {capacity: 1}
+    rules:
+      reserve:
+        when: BookingRequested
+        guard: "s.booked < s.capacity"
+        body: |
+          s.booked = s.booked + 1
+        contract: {post: "s.booked >= 0 and s.booked <= s.capacity"}
+      free:
+        when: BookingCancelled
+        guard: "s.booked > 0"
+        body: |
+          s.booked = s.booked - 1
+        contract: {post: "s.booked >= 0 and s.booked <= s.capacity"}
+queries:
+  total_booked: "sum(r.booked for r in room)"

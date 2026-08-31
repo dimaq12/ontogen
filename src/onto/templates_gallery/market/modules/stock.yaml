@@ -1,0 +1,33 @@
+# GENE stock: warehouse (shop domain) — independent of rooms/reservations.
+onto: 1
+module: stock
+requires:
+  events:
+    OrderPlaced:    {sku: str, qty: int}
+    OrderCancelled: {sku: str, qty: int}
+entities:
+  sku:
+    key: sku
+    state: {available: int, reserved: int}
+    init:  {available: 100}
+    rules:
+      reserve:
+        when: OrderPlaced
+        guard: "ev.qty > 0 and s.available >= ev.qty"
+        body: |
+          s.available = s.available - ev.qty
+          s.reserved = s.reserved + ev.qty
+        contract:
+          post: "s.available >= 0 and s.reserved >= 0"
+          conserves: "s.available + s.reserved"
+      release:
+        when: OrderCancelled
+        guard: "s.reserved >= ev.qty and ev.qty > 0"
+        body: |
+          s.reserved = s.reserved - ev.qty
+          s.available = s.available + ev.qty
+        contract:
+          post: "s.available >= 0 and s.reserved >= 0"
+          conserves: "s.available + s.reserved"
+queries:
+  total_available: "sum(x.available for x in sku)"

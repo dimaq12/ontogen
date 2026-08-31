@@ -1,0 +1,175 @@
+# GENE lago_metering: the Lago core (getlago.com) — usage events -> metric
+# aggregations per period -> an invoice at period close, with prepaid credits.
+#
+# Correspondences (lago/SPEC.md): transaction_id = event id (dedup D26);
+# external_subscription_id = key of a DYNAMIC instance (D51); metric code
+# = event type; billable metrics: api_calls (COUNT), storage_mb
+# (SUM value), peak_conn (MAX value); plan: fee 4900¢ arrears, charges
+# standard 2¢/call, 10¢/MB, 50¢/conn; wallet: rate 1 credit = 100¢
+# (v0 simplification: per-subscription, in Lago it's per-customer — noted).
+onto: 1
+module: lago_metering
+events:
+  SubscriptionStarted:    {subscription: str, customer: str}
+  SubscriptionTerminated: {subscription: str}
+  UsageApiCall:  {subscription: str}
+  UsageStorage:  {subscription: str, value: int}
+  UsageConn:     {subscription: str, value: int}
+  # v1: wallet per-CUSTOMER (as in Lago), shared across a customer's subscriptions
+  WalletTopUp:   {customer: str, credits: int}
+  # v2 (D55): the subscription ITSELF remembers the customer — the job carries only invoice_id
+  BillingPeriodClosed: {subscription: str, invoice_id: str}
+  # INTERNAL saga events (D54): born from policies, not written to the log
+  ApplyCredits:   {customer: str, subscription: str, invoice: str, amount: int}
+  CreditsApplied: {subscription: str, invoice: str, applied: int}
+  InvoiceIssued:  {invoice: str, subscription: str, total: int}
+entities:
+  subscription:
+    key: subscription
+    instances: dynamic
+    state:
+      active: int
+      customer: str              # D55: the link lives in the state, not in the job
+      period_calls: int          # COUNT api_calls for the current period
+      period_storage: int        # SUM storage_mb
+      period_conn_max: int       # MAX peak_conn
+      invoiced_total: int        # total billed for payment (net of credits)
+      credits_applied_total: int
+      last_invoice_total: int    # last invoice: before credits
+      last_invoice_due: int      # last invoice: due for payment
+      invoices: int
+    rules:
+      start:
+        when: SubscriptionStarted
+        guard: "s.active == 0"
+        body: |
+          s.active = 1
+          s.customer = ev.customer
+        contract: {post: "s.active >= 0 and s.active <= 1"}
+      terminate:
+        when: SubscriptionTerminated
+        guard: "s.active == 1"
+        body: |
+          s.active = 0
+        contract: {post: "s.active >= 0 and s.active <= 1"}
+      meter_api:
+        when: UsageApiCall
+        guard: "s.active == 1"
+        body: |
+          s.period_calls = s.period_calls + 1
+        contract: {post: "s.period_calls >= 0"}
+      meter_storage:
+        when: UsageStorage
+        guard: "s.active == 1 and ev.value > 0"
+        body: |
+          s.period_storage = s.period_storage + ev.value
+        contract: {post: "s.period_storage >= 0"}
+      meter_conn:
+        when: UsageConn
+        guard: "s.active == 1 and ev.value > 0"
+        body: |
+          s.period_conn_max = max(s.period_conn_max, ev.value)
+        contract: {post: "s.period_conn_max >= 0"}
+      close_period:
+        when: BillingPeriodClosed
+        guard: "s.active == 1"
+        intent: >-
+          Invoice for the period (Lago: fee arrears + standard charges), apply
+          prepaid credits (Lago wallets: deducted from the subtotal), reset the
+          period counters.
+        body: |
+          s.last_invoice_total = 4900 + (s.period_calls * 2 if s.period_calls <= 100 else 200 + (s.period_calls - 100) * 1) + s.period_storage * 10 + s.period_conn_max * 50
+          s.last_invoice_due = s.last_invoice_total
+          s.invoiced_total = s.invoiced_total + s.last_invoice_total
+          s.invoices = s.invoices + 1
+          s.period_calls = 0
+          s.period_storage = 0
+          s.period_conn_max = 0
+        contract:
+          post: "s.last_invoice_due >= 0 and s.last_invoice_due <= s.last_invoice_total and s.period_calls == 0 and s.period_storage >= 0 and s.period_conn_max >= 0"
+        emit:
+          # registry: the invoice fact spawns a DYNAMIC invoice instance
+          - event: InvoiceIssued
+            fields:
+              invoice: "ev.invoice_id"
+              subscription: "ev.subscription"
+              total: "s.last_invoice_total"
+          # SAGA (D54): the customer's wallet FROM THE SUBSCRIPTION STATE (D55)
+          - event: ApplyCredits
+            fields:
+              customer: "s.customer"
+              subscription: "ev.subscription"
+              invoice: "ev.invoice_id"
+              amount: "s.last_invoice_total"
+      credits_applied:
+        when: CreditsApplied
+        intent: the wallet's response — reduce the amount due by the credits applied
+        guard: "ev.applied >= 0 and ev.applied <= s.last_invoice_due"
+        body: |
+          s.last_invoice_due = s.last_invoice_due - ev.applied
+          s.invoiced_total = s.invoiced_total - ev.applied
+          s.credits_applied_total = s.credits_applied_total + ev.applied
+        contract:
+          post: "s.last_invoice_due >= 0 and s.last_invoice_due <= s.last_invoice_total"
+  customer:
+    key: customer
+    instances: dynamic
+    state:
+      credits_cents: int
+      applied_total: int
+      last_applied: int
+    rules:
+      topup:
+        when: WalletTopUp
+        guard: "ev.credits > 0"
+        body: |
+          s.credits_cents = s.credits_cents + ev.credits * 100
+        contract: {post: "s.credits_cents >= 0"}
+      apply:
+        when: ApplyCredits
+        intent: pay off the invoice with prepaid credits (Lago wallets)
+        guard: "ev.amount >= 0"
+        body: |
+          s.last_applied = min(s.credits_cents, ev.amount)
+          s.credits_cents = s.credits_cents - s.last_applied
+          s.applied_total = s.applied_total + s.last_applied
+        contract:
+          post: "s.credits_cents >= 0 and s.last_applied >= 0 and s.applied_total >= 0"
+        emit:
+          - event: CreditsApplied
+            when: "s.last_applied >= 0"
+            fields:
+              subscription: "ev.subscription"
+              invoice: "ev.invoice"
+              applied: "s.last_applied"
+  invoice:
+    key: invoice
+    instances: dynamic
+    state:
+      total: int
+      due: int
+      credits_applied: int
+      finalized: int
+    rules:
+      issue:
+        when: InvoiceIssued
+        # D80: entity induction exposed it — ev.total without a lower bound
+        # made post refutable at runtime (rejected on total<0)
+        guard: "s.finalized == 0 and ev.total >= 0"
+        body: |
+          s.total = ev.total
+          s.due = ev.total
+          s.finalized = 1
+        contract: {post: "s.due >= 0 and s.due <= s.total and s.finalized == 1"}
+      apply:
+        when: CreditsApplied
+        guard: "ev.applied >= 0 and ev.applied <= s.due"
+        body: |
+          s.due = s.due - ev.applied
+          s.credits_applied = s.credits_applied + ev.applied
+        contract: {post: "s.due >= 0 and s.due <= s.total"}
+queries:
+  active_subscriptions: "sum(1 for x in subscription if x.active == 1)"
+  total_invoiced: "sum(x.invoiced_total for x in subscription)"
+  invoices_due: "sum(i.due for i in invoice)"
+  total_credits: "sum(c.credits_cents for c in customer)"

@@ -1,0 +1,25 @@
+# GENE shipping: shipments (0 none -> 1 created -> 2 delivered).
+onto: 1
+module: shipping
+events:
+  ShipmentCreated:   {shipment: str, order: str}
+  ShipmentDelivered: {shipment: str}
+entities:
+  shipment:
+    key: shipment
+    state: {phase: int}
+    rules:
+      create:
+        when: ShipmentCreated
+        guard: "s.phase == 0"
+        body: |
+          s.phase = 1
+        contract: {post: "s.phase >= 0 and s.phase <= 2"}
+      delivered:
+        when: ShipmentDelivered
+        guard: "s.phase == 1"
+        body: |
+          s.phase = 2
+        contract: {post: "s.phase >= 0 and s.phase <= 2"}
+queries:
+  shipments_delivered: "sum(1 for sh in shipment if sh.phase == 2)"
