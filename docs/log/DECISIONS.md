@@ -894,3 +894,16 @@ Statuses: ACCEPTED / REVOKED→Dm / OPEN.
   compile-validate and are NOT built here (named, not faked). Per-language
   rollout of codec/direction (beyond rust) is a follow-up; Waves 1-4 already put
   all four languages on the driver axis.
+- D97 Wave 5 FINISHED [09-01] codec + direction axes on ALL FOUR languages (was
+  rust-only). go/python/kotlin skeletons extended: (a) CODEC — a spec-selected
+  parseWire (json | kv) feeds the same brain; kv (';'-delimited key=value) gives
+  a byte-identical fold in every language. (b) DIRECTION (async out) — the D54
+  emissions are collected (out_events, JSON with type) and an out-channel pushes
+  them to a sink filtered by `on`. KOTLIN gained the D54 emit-cascade itself
+  (the parallel-session WIP never had it — a saga's Shipped was silently dropped;
+  now the emit-cascade + async-out both work, saga fold correct). Go/Python got
+  HandleWire/parse_wire + out_events + drain. Exam faxes generalized to all four
+  dialects x (codec, direction) = 8/8, each compiled by its real toolchain and
+  driven through a real transport. Full matrix now: driver (fchannels 16/16) +
+  codec + direction, all four languages. Kafka/avro remain the only named-not-
+  built pieces (need a broker/lib).

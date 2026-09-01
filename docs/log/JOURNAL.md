@@ -615,3 +615,11 @@ transport, fold byte-identical to the interpreter. Wave 5 added the codec axis
 reference (faxes). Honest gaps named: per-language codec/direction rollout and
 kafka/avro (need a broker/lib) are follow-ups. Bumped 1.4.0 -> 1.5.0 (1.4.0's
 hardcoded file-batch door is superseded). CI ALL GREEN.
+
+## [09-01] D97 Wave 5 finished + release 1.6.0
+codec + async-out completed on ALL four languages (were rust-only in 1.5.0).
+Full channel matrix: rust/go/python/kotlin x {driver(file/stdio/tcp/http),
+codec(json/kv), direction(async out)} — fchannels 16/16 + faxes 8/8, each
+compiled by its real toolchain, driven through a real transport, folds
+byte-identical. Kotlin gained the D54 emit-cascade it never had. Only kafka/avro
+remain named-not-built (need a broker/lib). Bumped 1.5.0 -> 1.6.0.

@@ -117,6 +117,7 @@ def _kt_organism(g) -> str:
         ent = g.entities[en]
         L.append(f"    val {en} = LinkedHashMap<String, {_cls(en)}>()")
     L.append("    val seen = HashSet<String>()")
+    L.append("    val out_events = ArrayList<String>()")
     L.append("    init {")
     for en in sorted(g.entities):
         ent = g.entities[en]
@@ -127,11 +128,15 @@ def _kt_organism(g) -> str:
                     for f in sorted(ent.state))
                 L.append(f'        {en}["{inst}"] = {_cls(en)}({lits})')
     L.append("    }")
-    # handle(m)
+    # handle(m) = dedup + dispatch; dispatch = when-block with the D54 emit-cascade
     L.append("    fun handle(m: Map<String, String>) {")
     L.append('        val id = m["id"] ?: ""')
-    L.append('        val type = m["type"] ?: ""')
     L.append("        if (id.isNotEmpty() && !seen.add(id)) return")
+    L.append("        dispatch(m, 0)")
+    L.append("    }")
+    L.append("    fun dispatch(m: Map<String, String>, depth: Int) {")
+    L.append("        if (depth > 8) return")
+    L.append('        val type = m["type"] ?: ""')
     L.append("        when (type) {")
     for evn in sorted(g.events):
         matching = [(en, rn) for en in sorted(g.entities)
@@ -142,17 +147,43 @@ def _kt_organism(g) -> str:
         L.append(f'            "{evn}" -> {{')
         L.append(f"                val ev = decode{evn}(m)")
         for en, rn in matching:
+            r = g.entities[en].rules[rn]
             keyf = g.key_field(en)
             init_lits = ", ".join(
                 f"{f} = {ktlit(g.entities[en].init.get(f, '' if g.entities[en].state[f]=='str' else 0), g.entities[en].state[f])}"
                 for f in sorted(g.entities[en].state))
-            guarded = g.entities[en].rules[rn].guard
-            cond = f"guard_{en}_{rn}(s, ev)" if guarded else "true"
+            cond = f"guard_{en}_{rn}(s, ev)" if r.guard else "true"
             L.append("                run {")
             L.append(f'                    val inst = m["{keyf}"] ?: ""')
             L.append("                    if (inst.isNotEmpty()) {")
             L.append(f'                        val s = {en}.getOrPut(inst) {{ {_cls(en)}({init_lits}) }}')
-            L.append(f'                        if ({cond}) {{ {en}[inst] = rule_{en}_{rn}(s, ev) }}')
+            L.append(f"                        if ({cond}) {{")
+            L.append(f"                            val nxt = rule_{en}_{rn}(s, ev)")
+            L.append(f"                            {en}[inst] = nxt")
+            for em in r.emit:
+                econd = (emit_expr(E.parse_expr(em.when), {"s": "nxt", "ev": "ev"})
+                         if em.when else "true")
+                items = [("type", None, None)]
+                cparts = [f'"type" to "{em.event}"']
+                for f, src in em.fields.items():
+                    expr = emit_expr(E.parse_expr(src), {"s": "nxt", "ev": "ev"})
+                    items.append((f, expr, g.events[em.event][f]))
+                    cparts.append(f'"{f}" to ({expr}).toString()')
+                items.sort(key=lambda x: x[0])
+                jp = []
+                for (f, expr, t) in items:
+                    if f == "type":
+                        jp.append(r'\"type\":\"%s\"' % em.event)
+                    elif t == "str":
+                        jp.append(r'\"%s\":\"${%s}\"' % (f, expr))
+                    else:
+                        jp.append(r'\"%s\":${%s}' % (f, expr))
+                jstr = "{" + ",".join(jp) + "}"
+                L.append(f"                            if ({econd}) {{")
+                L.append(f'                                out_events.add("{jstr}")')
+                L.append(f'                                dispatch(hashMapOf<String,String>({", ".join(cparts)}), depth + 1)')
+                L.append("                            }")
+            L.append("                        }")
             L.append("                    }")
             L.append("                }")
         L.append("            }")
@@ -201,21 +232,55 @@ def _kt_organism(g) -> str:
     return "\n".join(L)
 
 
+def _kt_codec_fns(channels) -> str:
+    ins = [c for c in (channels or []) if c.get("direction", "in") == "in"]
+    codec = (ins[0] if ins else {}).get("codec", "json")
+    kv = ("fun parseKv(line: String): HashMap<String, String> {\n"
+          "    val m = HashMap<String, String>()\n"
+          "    for (part in line.trim().split(\";\")) {\n"
+          "        val p = part.trim(); if (p.isEmpty()) continue\n"
+          "        val i = p.indexOf('='); if (i < 0) continue\n"
+          "        m[p.substring(0, i).trim()] = p.substring(i + 1).trim()\n"
+          "    }\n    return m\n}\n")
+    if codec == "kv":
+        return kv + "fun parseWire(line: String): HashMap<String, String> = parseKv(line)\n"
+    return "fun parseWire(line: String): HashMap<String, String> = parseFlat(line)\n"
+
+
+def _kt_drain(channels) -> str:
+    outs = [c for c in (channels or []) if c.get("direction") == "out"]
+    out = ""
+    for oc in outs:
+        if oc.get("driver", "file") != "file":
+            continue
+        sink = oc.get("path", "out.jsonl")
+        on = oc.get("on", [])
+        cond = (" || ".join(f'ev.contains("\\"type\\":\\"{e}\\"")' for e in on)
+                if on else "true")
+        out += ('    java.io.File("%s").printWriter().use { pw -> '
+                'for (ev in org.out_events) { if (%s) pw.println(ev) } }\n') % (sink, cond)
+    return out
+
+
 def _kt_doors(g, channels) -> str:
     ins = [c for c in (channels or []) if c.get("direction", "in") == "in"]
     driver = (ins[0] if ins else {}).get("driver", "file")
+    _codec = _kt_codec_fns(channels)
+    _drain = _kt_drain(channels)
     if driver in ("file", "stdio"):
         src = ("File(args[0]).readLines()" if driver == "file"
                else "generateSequence(::readLine).toList()")
-        return ("fun main(args: Array<String>) {\n"
+        return (_codec +
+                "fun main(args: Array<String>) {\n"
                 "    val org = Organism()\n"
                 f"    for (line in {src}) {{\n"
-                "        if (line.isNotBlank()) org.handle(parseFlat(line))\n"
+                "        if (line.isNotBlank()) org.handle(parseWire(line))\n"
                 "    }\n"
+                + _drain +
                 "    println(org.dumpJson())\n"
                 "}\n")
     if driver == "http":
-        return r"""fun main(args: Array<String>) {
+        return _codec + r"""fun main(args: Array<String>) {
     var port = 8610
     var i = 0
     while (i < args.size) { if (args[i] == "--port" && i + 1 < args.size) { port = args[i + 1].toInt() }; i++ }
@@ -237,7 +302,7 @@ def _kt_doors(g, channels) -> str:
 }
 
 fun route(org: Organism, method: String, path: String, body: String): Pair<Int, String> {
-    if (method == "POST" && path == "/event") { org.handle(parseFlat(body)); return Pair(200, "{\"status\":\"applied\"}") }
+    if (method == "POST" && path == "/event") { org.handle(parseWire(body)); return Pair(200, "{\"status\":\"applied\"}") }
     if (method == "GET" && path == "/health") return Pair(200, "{\"ok\":true}")
     if (method == "GET" && path == "/dump") return Pair(200, org.dumpJson())
     val segs = path.trim('/').split("/")
@@ -249,7 +314,7 @@ fun route(org: Organism, method: String, path: String, body: String): Pair<Int, 
 }
 """
     # tcp
-    return r"""fun main(args: Array<String>) {
+    return _codec + r"""fun main(args: Array<String>) {
     var port = 8610
     var i = 0
     while (i < args.size) { if (args[i] == "--port" && i + 1 < args.size) { port = args[i + 1].toInt() }; i++ }
@@ -269,7 +334,7 @@ fun route(org: Organism, method: String, path: String, body: String): Pair<Int, 
                 t.isEmpty() -> ""
                 t == "?dump" -> org.dumpJson()
                 t.startsWith("?state/") -> { val sg = t.substring(7).split("/"); if (sg.size == 2) (org.stateJson(sg[0], sg[1]) ?: "null") else "null" }
-                else -> { org.handle(parseFlat(t)); "{\"status\":\"applied\"}" }
+                else -> { org.handle(parseWire(t)); "{\"status\":\"applied\"}" }
             }
             if (resp.isNotEmpty()) { writer.write(resp); writer.write("\n"); writer.flush() }
             line = reader.readLine()

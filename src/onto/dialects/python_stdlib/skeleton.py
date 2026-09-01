@@ -98,6 +98,7 @@ RETRY_WINDOW = {g.retry_window}
         self.data = data_dir
         self.seen = set()
         self.seen_q = deque()
+        self.out_events = []
         self.replaying = False
         self.counters = {"applied": 0, "dup": 0, "noop": 0, "rejected": 0,
                          "unknown_instance": 0, "invariant_violations": 0}
@@ -226,7 +227,9 @@ RETRY_WINDOW = {g.retry_window}
                     emit_lines += [
                         "    s = nxt   # policies (D54): fields from the POST-state",
                         f"    if {cond}:",
-                        f"        self.dispatch('{em.event}', {{{fld}}}, "
+                        f"        _child = {{'type': '{em.event}', {fld}}}",
+                        f"        self.out_events.append(json.dumps(_child, sort_keys=True, separators=(',', ':')))",
+                        f"        self.dispatch('{em.event}', _child, "
                         f"ev_id + ':p{k_e}', outcomes, depth + 1)"]
                 if branch == "if":
                     L += [f"    self.{en}[inst] = nxt",
@@ -288,6 +291,7 @@ RETRY_WINDOW = {g.retry_window}
 
     # ---- HTTP + bench
     add(_py_dump(g))
+    add(_py_codec(channels))
     add(_door_py(g, channels))
     return "\n".join(P)
 
@@ -389,7 +393,7 @@ def main():
                 return self._send(404, {{"error": "unknown path"}})
             n = int(self.headers.get("Content-Length", 0))
             try:
-                m = json.loads(self.rfile.read(n) or b"{{}}")
+                m = parse_wire((self.rfile.read(n) or b"{{}}").decode())
             except Exception as e:
                 return self._send(400, {{"error": f"bad json: {{e}}"}})
             out = org.handle(m)
@@ -479,6 +483,7 @@ def _py_dump(g) -> str:
 
 
 def _door_py(g, channels) -> str:
+    g_channels = channels
     ins = [c for c in (channels or []) if c.get("direction", "in") == "in"]
     driver = (ins[0] if ins else {}).get("driver", "http")
     if driver == "http":
@@ -493,7 +498,8 @@ def _door_py(g, channels) -> str:
                 "    " + read + "\n"
                 "    for l in lines:\n"
                 "        if l.strip():\n"
-                "            org.handle(json.loads(l))\n"
+                "            org.handle(parse_wire(l))\n"
+                + _py_drain(g_channels) +
                 "    print(org.dump())\n\n\n"
                 "if __name__ == '__main__':\n    main()\n")
     # tcp
@@ -522,10 +528,43 @@ def _serve_py_tcp(g) -> str:
 "                    st = org.state_of(seg[0], seg[1]) if len(seg) == 2 else None\n"
 "                    resp = json.dumps(st, sort_keys=True, separators=(',',':')) if st is not None else 'null'\n"
 "                else:\n"
-"                    org.handle(json.loads(t)); resp = '{\"status\":\"applied\"}'\n"
+"                    org.handle(parse_wire(t)); resp = '{\"status\":\"applied\"}'\n"
 "                self.wfile.write((resp + '\\n').encode())\n"
 "    class S(socketserver.ThreadingTCPServer):\n"
 "        allow_reuse_address = True\n"
 "    S(('127.0.0.1', port), H).serve_forever()\n\n\n"
 "if __name__ == '__main__':\n    main()\n")
+
+
+
+def _py_codec(channels) -> str:
+    ins = [c for c in (channels or []) if c.get("direction", "in") == "in"]
+    codec = (ins[0] if ins else {}).get("codec", "json")
+    if codec == "kv":
+        return ("def parse_kv(line):\n"
+                "    m = {}\n"
+                "    for part in line.split(';'):\n"
+                "        p = part.strip()\n"
+                "        if not p or '=' not in p: continue\n"
+                "        k, v = p.split('=', 1); k = k.strip(); v = v.strip()\n"
+                "        try: m[k] = int(v)\n"
+                "        except ValueError: m[k] = v\n"
+                "    return m\n"
+                "def parse_wire(line): return parse_kv(line)\n")
+    return "def parse_wire(line): return json.loads(line)\n"
+
+
+def _py_drain(channels) -> str:
+    outs = [c for c in (channels or []) if c.get("direction") == "out"]
+    out = ""
+    for oc in outs:
+        if oc.get("driver", "file") != "file":
+            continue
+        sink = oc.get("path", "out.jsonl")
+        on = oc.get("on", [])
+        cond = (" or ".join(f'(\'"type":"{e}"\' in ev)' for e in on) if on else "True")
+        out += ("    with open(%r, 'w', encoding='utf-8') as _sk:\n"
+                "        for ev in org.out_events:\n"
+                "            if %s: _sk.write(ev + '\\n')\n") % (sink, cond)
+    return out
 
