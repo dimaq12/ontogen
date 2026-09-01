@@ -113,32 +113,17 @@ def _drive_ref(g):
 
 def _drive_kotlin(g, workdir):
     def drive(events):
-        lines = []
-        for e in events:
-            parts = [str(e["id"]), str(e["type"])]
-            for k, v in e.items():
-                if k in ("id", "type"):
-                    continue
-                parts.append(f"{k}={v}")
-            lines.append("\t".join(parts))
-        evf = workdir / "events.txt"
-        evf.write_text("\n".join(lines) + "\n", encoding="utf-8")
+        import json
+        # D97: the kotlin organism now speaks the canon's flat-JSON codec
+        # (file driver), same as the other dialects — one event per line.
+        evf = workdir / "events.jsonl"
+        evf.write_text("\n".join(json.dumps(e) for e in events) + "\n",
+                       encoding="utf-8")
         ok, out = KG.run(workdir, str(evf))
         if not ok:
             raise RuntimeError("kotlin run failed:\n" + out)
-        # parse: entity \t instance \t field=value ...
-        result = {en: {} for en in g.entities}
-        for line in out.splitlines():
-            if not line.strip():
-                continue
-            cols = line.split("\t")
-            en, inst = cols[0], cols[1]
-            st = {}
-            for kv in cols[2:]:
-                k, v = kv.split("=", 1)
-                st[k] = v if g.entities[en].state[k] == "str" else int(v)
-            result[en][inst] = st
-        return result
+        # the door prints the fold as {en:{inst:{field:val}}} JSON
+        return json.loads(out.strip().splitlines()[-1])
     return drive
 
 

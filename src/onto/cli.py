@@ -132,6 +132,8 @@ def main(argv: list[str] | None = None) -> int:
         ap.add_argument("genome"); ap.add_argument("--dialect", default="go-stdlib")
         ap.add_argument("--out", default="")
         ap.add_argument("--skills-cache", default="")   # U7: printing bodies (python)
+        ap.add_argument("--ports", default="")          # D97: transport spec (ports.yaml)
+        ap.add_argument("--channel", default="")        # D97: sugar for a single in-driver
         ns = ap.parse_args(args[1:])
         from onto.core import genome as genome_mod
         from onto.dialects import registry
@@ -146,7 +148,23 @@ def main(argv: list[str] | None = None) -> int:
             print(str(e), file=sys.stderr)
             return 2
         outdir = pathlib.Path(ns.out) if ns.out else pathlib.Path("build") / g.name
-        d["skeleton"].generate(g, outdir, skills_cache=ns.skills_cache or None)
+        # D97: the transport spec selects the door (functor). ports.yaml, or the
+        # --channel sugar for a single in-driver; None -> the dialect's default.
+        channels = None
+        if ns.ports:
+            import yaml as _yaml
+            channels = (_yaml.safe_load(open(ns.ports)) or {}).get("channels")
+        elif ns.channel:
+            channels = [{"driver": ns.channel, "direction": "in", "codec": "json"}]
+        import inspect as _inspect
+        _gen = d["skeleton"].generate
+        if channels is not None and "channels" in _inspect.signature(_gen).parameters:
+            _gen(g, outdir, skills_cache=ns.skills_cache or None, channels=channels)
+        else:
+            if channels is not None:
+                print(f"note: dialect '{ns.dialect}' has no channel axis yet — "
+                      f"using its default door", file=sys.stderr)
+            _gen(g, outdir, skills_cache=ns.skills_cache or None)
         ok, msg = d["gates"].build(outdir)
         owned = pathlib.Path(".onto/owned.json")            # P2: protect phenotype
         if owned.exists():

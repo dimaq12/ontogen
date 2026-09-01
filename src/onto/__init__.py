@@ -1,2 +1,2 @@
 """onto v1 — a living compiler of ontologies. Map: docs/design/SPEC.md, protocol: CLAUDE.md."""
-__version__ = "1.4.0"
+__version__ = "1.5.0"

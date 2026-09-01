@@ -860,3 +860,37 @@ Statuses: ACCEPTED / REVOKED→Dm / OPEN.
     conformance divergence) fails. go/rust/python green, kotlin skipped. go+rust
     certificates gained the same honest 'skipped' guard. Registry now lists four
     dialects; the stale test_registry_has_both updated accordingly.
+- D97 [09-01] EPIC "channel = a configurable axis" — WAVE 1 (rust reference).
+  The law: the FOLD is the invariant; Codec and Driver are functors that
+  preserve it; the DOOR = Driver.receive -> Codec.decode -> Fold.handle ->
+  [emit] -> Codec.encode -> Driver.send, SELECTED FROM SPEC (ports.yaml), not
+  hardcoded. Certificate = fold-parity across channels.
+  Wave 1 done + validated with real rustc: the rust-stdlib skeleton is split
+  into emit_brain(genome) (genome-printed, unchanged) + emit_door(channel) from
+  a driver registry. Four std-only IN-drivers — file, stdio, tcp, http (raw
+  TcpListener, since Rust std has no http lib) — selected by `materialize
+  --channel X` or `--ports ports.yaml`. Exam fchannels: ONE genome, ONE brain,
+  each of the four channels compiled by rustc and driven through its ACTUAL
+  transport (file read / stdin / TCP socket / HTTP POST), every one producing a
+  BYTE-IDENTICAL fold to the interpreter — on wallet AND booking (cross-entity).
+  This is the honest proof the door is a fold-preserving functor and the brain
+  is genome-printed (same across doors), NOT a hardcoded template.
+  HONEST SCOPE: this is RUST ONLY. go/python still hardcode net/http; kotlin
+  hardcodes file-batch. Waves 2-4 bring them to the same door contract; codec-
+  as-axis + async (kafka/avro) is Wave 5; the 1.5.0 bump is Wave 6, only once
+  all languages reach the axis (with honest skips where a toolchain is absent).
+  The shipped 1.4.0 stands, its rust/kotlin door was a fixed file-batch — noted.
+- D97 Wave 5 [09-01] the remaining axes: CODEC + DIRECTION (rust reference,
+  validated rustc). CODEC: the wire<->event decoder is selected from spec
+  (channel.codec) — json (flat) and 'kv' (;-delimited key=value) both reach a
+  BYTE-IDENTICAL fold (Wire<->Event is a fold-preserving functor). DIRECTION:
+  the async OUT half — a genome's D54 emissions are collected (out_events) and
+  an out-channel (direction: out, on: [Event]) PUSHES them to a sink; proven on
+  a saga (Ordered emits Shipped -> the sink receives Shipped, fold correct).
+  Exam faxes (in CI). HONEST SCOPE: proven on the RUST reference; the axes exist
+  and are certified by fold-parity. KAFKA and AVRO are specific instances — a
+  kafka DRIVER (async push, with the membrane's retry/REVOKE as DLQ) and an avro
+  CODEC — that plug into these same axes; they need a broker + the avro lib to
+  compile-validate and are NOT built here (named, not faked). Per-language
+  rollout of codec/direction (beyond rust) is a follow-up; Waves 1-4 already put
+  all four languages on the driver axis.

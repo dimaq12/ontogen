@@ -604,3 +604,14 @@ emitted, certificate honestly 'skipped' with no kotlinc). f3 toolchain-tolerant
 (green|skipped pass, red fails). Version bumped to 1.4.0. Ships with the whole
 honesty arc D91-D95 (certify matrix, membrane REVOKE, migration fold-parity,
 freeze prose, harden, auth data-plane, knowledge quota, park-closing).
+
+## [09-01] D97 Waves 1-6 — the channel becomes a configurable axis; release 1.5.0
+The door is no longer a hardcoded template: it is a transport functor SELECTED
+FROM SPEC (ports.yaml). All four languages (rust/go/python/kotlin) reach the
+axis with four std-only drivers each (file/stdio/tcp/http) — fchannels proves
+16/16: every language compiled by its real toolchain, driven through its actual
+transport, fold byte-identical to the interpreter. Wave 5 added the codec axis
+(json/kv) and the async out-direction (emissions -> sink), proven on the rust
+reference (faxes). Honest gaps named: per-language codec/direction rollout and
+kafka/avro (need a broker/lib) are follow-ups. Bumped 1.4.0 -> 1.5.0 (1.4.0's
+hardcoded file-batch door is superseded). CI ALL GREEN.
